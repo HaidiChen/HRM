@@ -1,0 +1,2954 @@
+<html>
+
+<head>
+	<title>
+		管理员密码修改	
+	</title>
+</head>
+<link rel="stylesheet" href="../css/style.css" type="text/css" >
+<body style="margin:0px 0px 0px 0px;">
+<?php include 'action/session_check.php';
+	require_once("../conn/Conn_DB.php");
+	session_start();
+	if ($_GET['id'] != "")
+		$_SESSION['adminpwdid'] = $_GET['id'];
+	$str = "select * from yuangong where id = ".$_SESSION['adminpwdid'];
+	$arr = mysql_query($str);
+	$result = mysql_fetch_array($arr);
+?>
+	<form action="action/adminpwd_update_do.php" method="post">
+		<table class="add">
+			<tr>
+				<td colspan="2" align="center" class="tabletitle">
+					修改管理员密码	
+				</td>
+			</tr>
+			<tr>
+				<td>原密码：</td>
+				<td>
+				<input type="password" name="txt_password_old" />
+				</td>
+			</tr>
+			<tr>
+				<td>新密码：</td>
+				<td><input type="password" name="txt_password_new"/></td>
+			</tr>
+			<tr>
+			<input type="hidden" name="txt_id" value="<?php echo $result['id']; ?>" />
+				<td colspan="2" align="center">
+					<input type="submit" value="保存" />
+					<input type="button" value="返回" onclick="window.location.href='admin_manager.php';" />
+				</td>
+			</tr>
+		</table>
+	</form>
+</body>
+
+</html>
+<html>
+
+<head>
+	<title>
+		新增管理员	
+	</title>
+<link rel="stylesheet" href="../css/style.css" type="text/css" >
+</head>
+
+<body style="margin:0px 0px 0px 0px;">
+	<?php include 'action/session_check.php' ?>
+	<form action="action/admin_add_do.php" method="post">
+		<table class="add"> 
+			<tr>
+				<td colspan="2" align="center" class="tabletitle">
+					新增管理员	
+				</td>
+			</tr>
+			<tr>
+				<td>职员：</td>
+				<td>
+					<select name="txt_yuangongbianhao" >
+<?php
+	require_once('../conn/Conn_DB.php');
+	$str = "select id, xingming from yuangong";
+	$arr = mysql_query($str);
+	while ($result = mysql_fetch_array($arr)){
+		echo "<option value='".$result['id']."'>".$result['xingming']."</option>";
+	}
+?>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>密码：</td>
+				<td><input type="password" name="txt_password1" /></td>
+			</tr>
+			<tr>
+				<td>确认密码：</td>
+				<td><input type="password" name="txt_password2" /></td>
+			</tr>
+			<tr>
+				<td colspan="2" align="center">
+					<input type="submit" value="保存" />
+				</td>
+			</tr>
+		</table>
+	</form>
+</body>
+
+</html>
+<html>
+
+<head><title>管理员一览</title>
+	<link rel="stylesheet" type="text/css" href="../css/style.css" >
+</head>
+
+<body style="margin:0px 0px 0px 0px;">
+	<?php include 'action/session_check.php'; ?>
+	<h1>管理员一览</h1>
+	<form action="" method="post">
+		<table align="center">
+			<?php 
+				require_once("../conn/Conn_DB.php");
+				include 'fenye.php';
+				$str = "select id,xingming from yuangong where shenfen = 'administrator' order by id";
+				$address = "admin_manager.php";
+				$params = PageOrdered($str, $address);
+				$str = "select id,xingming from yuangong where shenfen = 'administrator' order by id limit $params[0], $params[1]";
+				$arr = mysql_query($str);
+			?>
+			<tr align="center" class="tabletitle">
+				<td>编号</td><td>姓名</td><td colspan="2">操作</td>
+			</tr>
+			<?php
+				while($result = mysql_fetch_array($arr)){
+			?>
+			<tr align="center">
+				<td ><?php echo $result["id"]; ?></td>
+				<td ><?php echo $result["xingming"]; ?></td>
+				<td ><a href="adminpwd_update.php?id=<?php echo $result["id"]; ?>">修改密码</a></td>
+				<td ><a href="action/admin_delete_do.php?id=<?php echo $result['id']; ?>">删除</a></td>
+			</tr>
+			<?php } ?>
+		</table>
+	</form>
+</body>
+
+</html>
+<html>
+<head><title>人事管理系统——员工平台</title></head>
+<link rel="stylesheet" href="../css/style.css" type="text/css" >
+<?php include 'action/session_check.php'; ?>
+    <body style = "margin:0px 0px 0px 0px">
+    <table border = "10" style = "width=100%" >
+    <tr><td colspan = "2" align="center"><font size = "6" color="yellow">栏棱人事管理系统——员工平台</td></tr>
+    <tr><td align="center" width="200px" valign = "top">
+        <br/><a href = "selfInfo.php" target = "mainframe">个人信息查询</a><br/><br/>
+        <a href = "selfPerformance.php" target = "mainframe">个人绩效查询</a><br/><br/>
+        <a href = "selfSalary.php" target = "mainframe">个人薪酬查询</a><br/><br/>
+        <a href = "login.php" class="zhuyetext" >退出登录</a><br/><br/>
+    </td>
+    <td>
+    <iframe name = "mainframe" style = "width:100%; height:350%"></iframe><!--iframe框架-->
+    </td></tr> 
+    </table>
+    </body>
+</html>
+<?php
+function PageOrdered($str, $address){
+	$arr = mysql_query($str);
+	$num = mysql_num_rows($arr);
+	$fnum = 6;
+	$pagenum = ceil($num / $fnum);
+	$tmp = $_GET['page'];
+	if ($tmp > $pagenum){
+		echo "<script>window.location.href=".$address."</script>";
+	}
+	if ($tmp == "")
+		$n = 0;
+	else
+		$n = ($tmp - 1) * $fnum;
+	echo "<br />";
+	echo "<br />";
+	echo "<br />";
+	for ($i = 0; $i < $pagenum; $i++){
+		echo "<a href=".$address."?page=".($i+1).">".($i + 1)."</a>&nbsp;";
+	}
+	echo "<br />";
+	echo "<br />";
+	echo "<br />";
+	$param = array($n, $fnum);
+	return $param;
+}
+?>
+<html>
+
+<head>
+	<title>
+		新增合同项目	
+	</title>
+</head>
+<link rel="stylesheet" href="../css/style.css" type="text/css" >
+<body style="margin:0px 0px 0px 0px;">
+	<?php include 'action/session_check.php' ?>
+	<form action="action/hetong_add_do.php" method="post">
+		<table class="add">
+			<tr>
+				<td colspan="2" align="center" class="tabletitle">
+					新增合同项目	
+				</td>
+			</tr>
+			<tr>
+				<td>合同编号：</td>
+				<td>
+					<input type="text" name="txt_hetongbianhao" />
+				</td>
+			</tr>
+			<tr>
+				<td>有效期(年)：</td>
+				<td><input type="text" name="txt_youxiaoqi" /></td>
+			</tr>
+			<tr>
+				<td colspan="2" align="center">
+					<input type="submit" value="保存" />
+				</td>
+			</tr>
+		</table>
+	</form>
+</body>
+
+</html>
+<html>
+
+<head><title>合同项目管理</title>
+	<link rel="stylesheet" href="../css/style.css" type="text/css" >
+</head>
+
+<body style="margin:0px 0px 0px 0px;">
+	<?php include 'action/session_check.php'; ?>
+	<h1>现有合同项目</h1>
+	<form action="" method="post">
+		<table align="center">
+			<?php 
+				require_once("../conn/Conn_DB.php");
+				include 'fenye.php';
+				$str = "select * from hetong order by id";
+				$address = "hetong_manager.php";
+				$params = PageOrdered($str, $address);
+				$str = "select * from hetong order by id limit $params[0], $params[1]";
+				$arr = mysql_query($str);
+			?>
+			<tr align="center" class="tabletitle">
+				<td>合同编号</td><td>有效期(年)</td><td colspan="2">操作</td>
+			</tr>
+			<?php
+				while($result = mysql_fetch_array($arr)){
+			?>
+			<tr align="center">
+				<td ><?php echo $result["bianhao"]; ?></td>
+				<td ><?php echo $result['youxiaoqi'];?></td>
+				<td ><a href="hetong_update.php?id=<?php echo $result["id"]; ?>">修改</a></td>
+				<td ><a href="action/hetong_delete_do.php?id=<?php echo $result['id']; ?>">删除</a></td>
+			</tr>
+			<?php } ?>
+		</table>
+	</form>
+</body>
+
+</html>
+<html>
+
+<head>
+	<title>
+		编辑合同项目	
+	</title>
+</head>
+<link rel="stylesheet" href="../css/style.css" type="text/css" >
+<body style="margin:0px 0px 0px 0px;">
+<?php include 'action/session_check.php';
+	require_once("../conn/Conn_DB.php");
+	session_start();
+	if ($_GET['id'] != "")
+		$_SESSION['hetongid'] = $_GET['id'];
+	$str = "select * from hetong where id = ".$_SESSION['hetongid'];
+	$arr = mysql_query($str);
+	$result = mysql_fetch_array($arr);
+?>
+	<form action="action/hetong_update_do.php" method="post">
+		<table class="add">
+			<tr>
+				<td colspan="2" align="center" class="tabletitle">
+					编辑合同项目	
+				</td>
+			</tr>
+			<tr>
+				<td>合同编号：</td>
+				<td>
+				<input type="text" disabled value="<?php echo $result['bianhao']; ?>" />
+				</td>
+			</tr>
+			<tr>
+				<td>有效期(年)：</td>
+				<td><input type="text" name="txt_youxiaoqi" value="<?php echo $result['youxiaoqi']; ?>" /></td>
+			</tr>
+			<tr>
+			<input type="hidden" name="txt_id" value="<?php echo $result['id']; ?>" />
+				<td colspan="2" align="center">
+					<input type="submit" value="保存" />
+					<input type="button" value="返回" onclick="window.location.href='hetong_manager.php';" />
+				</td>
+			</tr>
+		</table>
+	</form>
+</body>
+
+</html>
+<html>
+
+<head>
+	<title>
+		新增基本工资及其补贴	
+	</title>
+</head>
+<link rel="stylesheet" href="../css/style.css" type="text/css" >
+<body style="margin:0px 0px 0px 0px;">
+	<?php include 'action/session_check.php' ?>
+	<form action="action/jiben_add_do.php" method="post">
+		<table class="add">
+			<tr>
+				<td colspan="2" align="center" class="tabletitle">
+					新增基本(工龄)工资及其补贴	
+				</td>
+			</tr>
+			<tr>
+				<td>工龄：</td>
+				<td>
+					<input type="number" name="txt_gongling" />
+				</td>
+			</tr>
+			<tr>
+				<td>补贴：</td>
+				<td><input type="number" name="txt_butie" /></td>
+			</tr>
+			<tr>
+				<td>基本工资：</td>
+				<td><input type="number" name="txt_gongzi" /></td>
+			</tr>
+			<tr>
+				<td colspan="2" align="center">
+					<input type="submit" value="保存" />
+				</td>
+			</tr>
+		</table>
+	</form>
+</body>
+
+</html>
+<html>
+
+<head><title>基本工资及工龄补贴管理</title>
+	<link rel="stylesheet" href="../css/style.css" type="text/css" >
+</head>
+
+<body style="margin:0px 0px 0px 0px;">
+	<?php include 'action/session_check.php'; ?>
+	<h1>基本工资及工龄补贴</h1>
+	<form action="" method="post">
+		<table align="center">
+			<?php 
+				require_once("../conn/Conn_DB.php");
+				include 'fenye.php';
+				$str = "select * from jiben order by gongling";
+				$address = "jiben_manager.php";
+				$params = PageOrdered($str, $address);
+				$str = "select * from jiben order by gongling limit $params[0], $params[1]";
+				$arr = mysql_query($str);
+			?>
+			<tr align="center" class="tabletitle">
+				<td>工龄</td><td>补贴</td><td>基本工资</td><td colspan="2">操作</td>
+			</tr>
+			<?php
+				while($result = mysql_fetch_array($arr)){
+					if ($result['gongling'] < 0)
+						continue;
+			?>
+			<tr align="center">
+				<td ><?php echo $result["gongling"]; ?></td>
+				<td ><?php echo $result['butie'];?></td>
+				<td ><?php echo $result['gongzi'];?></td>
+				<td ><a href="jiben_update.php?id=<?php echo $result["id"]; ?>">修改</a></td>
+				<td ><a href="action/jiben_delete_do.php?id=<?php echo $result['id']; ?>">删除</a></td>
+			</tr>
+			<?php } ?>
+		</table>
+	</form>
+</body>
+
+</html>
+<html>
+
+<head>
+	<title>
+		编辑基本工资及工龄补贴	
+	</title>
+</head>
+<link rel="stylesheet" href="../css/style.css" type="text/css" >
+<body style="margin:0px 0px 0px 0px;">
+<?php 
+	include 'action/session_check.php';
+	require_once("../conn/Conn_DB.php");
+	session_start();
+	if ($_GET['id'] != "")
+		$_SESSION['jibenid'] = $_GET['id'];
+	$str = "select * from jiben where id = ".$_SESSION['jibenid'];
+	$arr = mysql_query($str);
+	$result = mysql_fetch_array($arr);
+?>
+	<form action="action/jiben_update_do.php" method="post">
+		<table class="add">
+			<tr>
+				<td colspan="2" align="center" class="tabletitle">
+					编辑基本工资及工龄补贴	
+				</td>
+			</tr>
+			<tr>
+				<td>工龄：</td>
+				<td>
+				<input type="text" disabled value="<?php echo $result['gongling']; ?>" />
+				</td>
+			</tr>
+			<tr>
+				<td>补贴：</td>
+				<td><input type="number" name="txt_butie" value="<?php echo $result['butie']; ?>" /></td>
+			</tr>
+			<tr>
+				<td>基本工资：</td>
+				<td><input type="number" name="txt_gongzi" value="<?php echo $result['gongzi']; ?>" /></td>
+			</tr>
+			<tr>
+			<input type="hidden" name="txt_id" value="<?php echo $result['id']; ?>" />
+				<td colspan="2" align="center">
+					<input type="submit" value="保存" />
+					<input type="button" value="返回" onclick="window.location.href='jiben_manager.php';" />
+				</td>
+			</tr>
+		</table>
+	</form>
+</body>
+
+</html>
+<html>
+
+<head>
+	<title>
+		新增绩效工资	
+	</title>
+</head>
+<link href="../css/style.css" rel="stylesheet" type="text/css" >
+
+<body style="margin:0px 0px 0px 0px;">
+	<?php include 'action/session_check.php' ?>
+	<form action="action/jixiao_add_do.php" method="post">
+		<table class="add">
+			<tr>
+				<td colspan="2" align="center" class="tabletitle">
+					新增绩效级别及对应工资	
+				</td>
+			</tr>
+			<tr>
+				<td>绩效级别(1-10)：</td>
+				<td>
+					<input type="number" name="txt_jibie" />
+				</td>
+			</tr>
+			<tr>
+				<td>工资：</td>
+				<td><input type="number" name="txt_gongzi" /></td>
+			</tr>
+			<tr>
+				<td colspan="2" align="center">
+					<input type="submit" value="保存" />
+				</td>
+			</tr>
+		</table>
+	</form>
+</body>
+
+</html>
+<html>
+
+<head><title>绩效级别管理</title></head>
+<link rel="stylesheet" href="../css/style.css" type="text/css" />
+<body style="margin:0px 0px 0px 0px;">
+	<?php include 'action/session_check.php'; ?>
+	<h1>绩效级别</h1>
+	<form action="" method="post">
+		<table align="center">
+			<?php 
+				require_once("../conn/Conn_DB.php");
+				include 'fenye.php';
+				$str = "select * from jixiao order by jibie";
+				$address = "jixiao_manager.php";
+				$params = PageOrdered($str, $address);
+				$str = "select * from jixiao order by jibie limit $params[0], $params[1]";
+				$arr = mysql_query($str);
+			?>
+			<tr align="center" class="tabletitle">
+				<td>绩效级别</td><td>工资</td><td colspan="2">操作</td>
+			</tr>
+			<?php
+				while($result = mysql_fetch_array($arr)){
+			?>
+			<tr align="center">
+				<td ><?php echo $result["jibie"]; ?></td>
+				<td ><?php echo $result['gongzi'];?></td>
+				<td ><a href="jixiao_update.php?id=<?php echo $result["id"]; ?>">修改</a></td>
+				<td ><a href="action/jixiao_delete_do.php?id=<?php echo $result['id']; ?>">删除</a></td>
+			</tr>
+			<?php } ?>
+		</table>
+	</form>
+</body>
+
+</html>
+<html>
+
+<head>
+	<title>
+		编辑绩效级别	
+	</title>
+</head>
+<link rel="stylesheet" href="../css/style.css" type="text/css" >
+<body style="margin:0px 0px 0px 0px;">
+<?php include 'action/session_check.php';
+	require_once("../conn/Conn_DB.php");
+	session_start();
+	if ($_GET['id'] != "")
+		$_SESSION['jixiaoid'] = $_GET['id'];
+	$str = "select * from jixiao where id = ".$_SESSION['jixiaoid'];
+	$arr = mysql_query($str);
+	$result = mysql_fetch_array($arr);
+?>
+	<form action="action/jixiao_update_do.php" method="post">
+		<table class="add">
+			<tr>
+				<td colspan="2" align="center" class="tabletitle">
+					编辑绩效级别及对应工资	
+				</td>
+			</tr>
+			<tr>
+				<td>绩效级别：</td>
+				<td>
+				<input type="text" disabled value="<?php echo $result['jibie']; ?>" />
+				</td>
+			</tr>
+			<tr>
+				<td>工资：</td>
+				<td><input type="number" name="txt_gongzi" value="<?php echo $result['gongzi']; ?>" /></td>
+			</tr>
+			<tr>
+			<input type="hidden" name="txt_id" value="<?php echo $result['id']; ?>" />
+				<td colspan="2" align="center">
+					<input type="submit" value="保存" />
+					<input type="button" value="返回" onclick="window.location.href='jixiao_manager.php';" />
+				</td>
+			</tr>
+		</table>
+	</form>
+</body>
+
+</html>
+<html>
+
+<head>
+	<title>
+		绩效考核	
+	</title>
+</head>
+<link rel="stylesheet" href="../css/style.css" type="text/css" >
+<body style="margin:0px 0px 0px 0px;">
+	<?php include 'action/session_check.php' ?>
+	<form action="action/kaohe_add_do.php" method="post">
+		<table class="add">
+			<tr>
+				<td colspan="2" align="center" class="tabletitle">
+					绩效考核	
+				</td>
+			</tr>
+			<tr>
+				<td>员工：</td>
+				<td><select name="txt_yuangongbianhao">
+<?php
+	require_once('../conn/Conn_DB.php');
+	$str = "select id, xingming from yuangong";
+	$arr = mysql_query($str);
+	while ($result = mysql_fetch_array($arr)){
+		echo "<option value='".$result['id']."'>".$result['xingming']."</option>";
+	}
+?>
+				</select></td>
+			</tr>
+			<tr>
+				<td>主管评分：</td>
+				<td>
+					<input type="number" name="txt_zhuguan" />
+				</td>
+			</tr>
+			<tr>
+				<td>同事评分：</td>
+				<td><input type="number" name="txt_tongshi" /></td>
+			</tr>
+			<tr>
+				<td>下属评分：</td>
+				<td><input type="number" name="txt_xiashu" /></td>
+			</tr>
+			<tr>
+				<td>自我评分：</td>
+				<td><input type="number" name="txt_ziwo" /></td>
+			</tr>
+			<tr>
+				<td colspan="2" align="center">
+					<input type="submit" value="保存" />
+				</td>
+			</tr>
+		</table>
+	</form>
+</body>
+
+</html>
+<html>
+
+<head><title>历史绩效考核</title></head>
+<link rel="stylesheet" href="../css/style.css" type="text/css" >
+<body style="margin:0px 0px 0px 0px;">
+	<?php include 'action/session_check.php'; ?>
+	<h1>历史绩效考核</h1>
+	<form action="" method="post">
+		<table align="center">
+			<?php 
+				require_once("../conn/Conn_DB.php");
+				include 'fenye.php';
+				$str = "select * from yuangong order by id";
+				$address = "kaohe_manager.php";
+				$params = PageOrdered($str, $address);
+				$str = "select * from yuangong order by id limit $params[0], $params[1]";
+				$arr = mysql_query($str);
+			?>
+			<tr align="center" class="tabletitle">
+				<td>职员编号</td><td>姓名</td><td>职位</td><td>总评分</td>
+			</tr>
+			<?php
+				while($result = mysql_fetch_array($arr)){
+					if ($result['zongping'] == "")
+						continue;
+			?>
+			<tr align="center">
+				<td ><?php echo $result["id"]; ?></td>
+				<td ><?php echo $result['xingming'];?></td>
+				<td ><?php 
+					$str2 = "select name from zhiwei where id = ".$result['zhiweibianhao'];
+					$arr2 = mysql_query($str2);
+					$result2 = mysql_fetch_array($arr2);
+					echo $result2['name'];
+				?></td>
+				<td ><?php echo $result['zongping'];?></td>
+			</tr>
+			<?php } ?>
+		</table>
+	</form>
+</body>
+
+</html>
+<html>
+
+<head><title>劳动关系管理</title></head>
+<link rel="stylesheet" href="../css/style.css" type="text/css" >
+
+<body style="margin:0px 0px 0px 0px;">
+	<?php include 'action/session_check.php'; ?>
+	<h1>劳动关系表</h1>
+	<form action="" method="post">
+		<table align="center">
+			<?php 
+				require_once("../conn/Conn_DB.php");
+				include 'fenye.php';
+				$str = "select * from yuangong order by id";
+				$address = "laodong_manager.php";
+				$params = PageOrdered($str, $address);
+				$str = "select * from yuangong order by id limit $params[0], $params[1]";
+				$arr = mysql_query($str);
+			?>
+			<tr align="center" class="tabletitle">
+				<td>职员编号</td><td>姓名</td><td>合同编号</td>
+				<td>合同有效期(年)</td><td>入职时间</td><td>签约时间</td>
+				<td>绩效级别</td><td>操作</td>
+			</tr>
+			<?php
+				while($result = mysql_fetch_array($arr)){
+					if ($result['hetongbianhao'] == ""){
+						continue;
+					}
+			?>
+			<tr align="center">
+				<td ><?php echo $result["id"]; ?></td>
+				<td ><?php echo $result['xingming'];?></td>
+				<td ><?php 
+					$str2 = "select bianhao from hetong where id = ".$result['hetongbianhao'];
+					$arr2 = mysql_query($str2);
+					$result2 = mysql_fetch_array($arr2);
+					echo $result2['bianhao'];
+					?></td>
+				<td ><?php
+					$str2 = "select youxiaoqi from hetong where id = ".$result['hetongbianhao'];
+					$arr2 = mysql_query($str2);
+					if ($result2 = mysql_fetch_array($arr2)){
+						echo $result2['youxiaoqi']; 
+					}
+				?></td>
+				<td ><?php echo $result['ruzhishijian']; ?></td>
+				<td ><?php echo $result["qianyueshijian"]; ?></a></td>
+				<td ><?php
+					$str2 = "select jibie from jixiao where id = ".$result['jixiaogongzibianhao'];
+					$arr2 = mysql_query($str2);
+					if ($result2 = mysql_fetch_array($arr2)){
+						echo $result2['jibie']; 
+					}
+				?></td>
+				<td ><a href="laodong_update.php?id=<?php echo $result["id"]; ?>">修改</a></td>
+			</tr>
+			<?php } ?>
+		</table>
+	</form>
+</body>
+
+</html>
+<html>
+
+<head>
+	<title>
+	劳动关系	
+	</title>
+</head>
+<link rel="stylesheet" href="../css/style.css" type="text/css" >
+<body style="margin:0px 0px 0px 0px;">
+	<?php include 'action/session_check.php'; 
+	require_once('../conn/Conn_DB.php');
+	if ($_GET['id'] != ""){
+		$_SESSION['laodongid'] = $_GET['id'];
+	}
+	$str = "select * from yuangong where id = ".$_SESSION['laodongid'];
+	$arr = mysql_query($str);
+	$result = mysql_fetch_array($arr);
+?>
+	<form action="action/laodong_update_do.php" method="post">
+		<table class="add" >
+			<tr>
+				<td colspan="2" align="center" class="tabletitle">
+					修改劳动关系	
+				</td>
+			</tr>
+			<tr>
+				<td>职员：</td>
+				<td><?php echo $result['id'] ?></td>
+			</tr>
+			<tr>
+				<td>入职时间：</td>
+				<td><input type="date" name="txt_ruzhishijian" value="<?php echo $result['ruzhishijian']; ?>" /></td>
+			</tr>
+			<tr>
+				<td>签约时间：</td>
+				<td><input type="date" name="txt_qianyueshijian" value="<?php echo $result['qianyueshijian']; ?>" /></td>
+			</tr>
+			<tr>
+				<td>合同编号：</td>
+				<td><select name="txt_hetongbianhao" >
+<?php
+	$str2 = "select * from hetong";
+	$arr2 = mysql_query($str2);
+	while ($hetong = mysql_fetch_array($arr2)){
+		if ($result['hetongbianhao'] == $hetong['id']){
+			echo "<option value='".$hetong['id']."' selected='true'>".$hetong['bianhao']."</option>";
+		}
+		else
+			echo "<option value='".$hetong['id']."'>".$hetong['bianhao']."</option>";
+	}
+?>
+				</select></td>
+			</tr>
+			<tr>
+				<td>绩效级别：</td>
+				<td><select name="txt_jixiao" >
+<?php
+	$str2 = "select * from jixiao";
+	$arr2 = mysql_query($str2);
+	while ($jixiao = mysql_fetch_array($arr2)){
+		if ($result['jixiaogongzibianhao'] == $jixiao['id']){
+			echo "<option value='".$jixiao['id']."' selected='true'>".$jixiao['jibie']."</option>";
+		}
+		else
+			echo "<option value='".$jixiao['id']."'>".$jixiao['jibie']."</option>";
+	}
+?>
+				</select></td>
+			</tr>
+			<tr>
+				<td colspan="2" align="center">
+				<input type="hidden" value="<?php echo $result['id']; ?>" name="txt_yuangongbianhao" />
+					<input type="submit" value="保存" />
+					<input type="button" value="取消" onclick="window.location.href='cover.html';" />
+				</td>
+			</tr>
+		</table>
+	</form>
+</body>
+
+</html>
+<html>
+    <head>
+    <title>人事管理系统</title>
+    <style type = "text/css">
+        body{
+            background-image: url("../images/login2.jpg");   
+            background-repeat: no-repeat;
+            margin:0 auto;
+            width:100%;
+            height:100%;
+            position:fixed;
+            background-size: cover;
+        }   
+        .rs{
+            width:30px;
+            height:30px;
+            margin-top:25px;
+            padding: 0 15px;
+            background:#2d2d2d;
+            background:rgba(45,45,45,.45);
+            -moz-border-radius:6px;
+            -webkit-border-radius:6px;
+            border-radius:6px;
+            border:1px solid #3d3d3d;
+            border:1px solid rgba(255,255,255,.15);
+            -moz-box-shadow: 0 2px 3px 0 rgba(0,0,0,.1) inset;
+            -webkit-box-shadow: 0 2px 3px 0 rgba(0,0,0,.1) inset;
+            box-shadow: 0 2px 3px 0 rgba(0,0,0,.1) inset;
+            font-family: 'PT Sans', Helvetica, Arial,sans-serif;
+            font-size:14px;
+            color: #FFFFFF;
+            text-shadow: 0 1px 2px rgba(0,0,0,.1);
+            -o-transition: all .2s;
+            -moz-transition: all .2s;
+            -webkit-transition: all .2s;
+            -ms-transition: all .2s;
+        }
+        input{
+            width:270px;
+            height:42px;
+            margin-top:25px;
+            padding: 0 15px;
+            background:#2d2d2d;
+            background:rgba(45,45,45,.45);
+            -moz-border-radius:6px;
+            -webkit-border-radius:6px;
+            border-radius:6px;
+            border:1px solid #3d3d3d;
+            border:1px solid rgba(255,255,255,.15);
+            -moz-box-shadow: 0 2px 3px 0 rgba(0,0,0,.1) inset;
+            -webkit-box-shadow: 0 2px 3px 0 rgba(0,0,0,.1) inset;
+            box-shadow: 0 2px 3px 0 rgba(0,0,0,.1) inset;
+            font-family: 'PT Sans', Helvetica, Arial,sans-serif;
+            font-size:26px;
+            color: #FFFFFF;
+            text-shadow: 0 1px 2px rgba(0,0,0,.1);
+            -o-transition: all .2s;
+            -moz-transition: all .2s;
+            -webkit-transition: all .2s;
+            -ms-transition: all .2s;
+        }
+    </style>
+    </head>
+    <body>
+	<?php 
+		session_start();
+		if ($_SESSION['user1'] != "")
+			$_SESSION['user1'] = "";
+		if ($_SESSION['user2'] != "")
+			$_SESSION['user2'] = "";
+	?>  
+        <form name="login" action="action/login_do.php" method = "post">
+            <p style="margin: 50px 0px 0px 640px">
+            <font size = "7" ><br/>栏棱人事管理系统<br/><br/>
+            </p>
+            <p style="margin: 0px 0px 0px 600px">
+            <font size = "5">账号：<input type="text" name="txt_username" id="txt_username"/><br/>
+            </p>
+            <p style="margin: 0px 0px 0px 600px">
+            密码：<input type="password" name="txt_pwd" id="txt_pwd"/><br/>
+            </p>
+            <p style="margin: 0px 0px 0px 600px">
+            身份：<input type="radio" name="identity" value="administrator" class="rs">管理员
+                    <input type="radio" name="identity" value="zhiyuan" class = "rs">员工<br/>
+            </p>
+            <p style="margin: 0px 0px 0px 670px"><input type="submit" value="登录"></p>
+        </form>
+        
+    </body>
+</html>
+<html>
+	<head>
+		<title>
+			人事管理系统
+		</title>
+	<link href='../css/style.css' rel="stylesheet" type='text/css' >
+	</head>
+	<body>
+		<?php  include 'action/session_check.php';	?>
+		<table style="width:100%">
+			<tr class="myfont">
+				<td width="200px" valign="center" align="center">
+					<a href="admin_add.php" target="mainframe" class="text">添加管理员</a><br />
+					<a href="admin_manager.php?page=1" target="mainframe" class="text" >管理员管理</a><br />
+					<br />
+					<a href="zhiweitype_add.php" target="mainframe" class="text" >添加职位</a><br />
+					<a href="zhiweitype_manager.php?page=1" target="mainframe" class="text">职位管理</a><br />
+					<br />
+					<a href="zhiyuan_add.php" target="mainframe" class="text" >添加职员信息</a><br />
+					<a href="zhiyuan_manager.php?page=1" target="mainframe" class="text" >职员信息管理</a><br />
+					<br />
+					<a href="jixiao_add.php" target="mainframe" class="text" >添加绩效级别</a><br />
+					<a href="jixiao_manager.php?page=1" target="mainframe" class="text">绩效级别管理</a><br />
+					<br />
+					<a href="kaohe_add.php" target="mainframe" class="text">绩效考核</a><br />
+					<a href="kaohe_manager.php?page=1" target="mainframe" class="text">历史绩效考核</a><br />
+					<br />
+					<a href="xueli_add.php" target="mainframe" class="text" >新增学历补贴</a><br />
+					<a href="xueli_manager.php?page=1" target="mainframe" class="text">学历补贴管理</a><br />
+					<br />
+					<a href="jiben_add.php" target="mainframe" class="text" >添加基本工资</a><br />
+					<a href="jiben_manager.php?page=1" target="mainframe" class="text">基本工资管理</a><br />
+					<br />
+					<a href="hetong_add.php" target="mainframe" class="text">添加合同项目</a><br />
+					<a href="hetong_manager.php?page=1" target="mainframe" class="text">合同项目管理</a><br />
+					<br />
+					<a href="laodong_manager.php?page=1" target="mainframe" class="text">劳动关系管理</a><br />
+					<br />
+					<a href="login.php" class="zhuyetext">退出登录</td>
+				</td>
+				<td>
+					<iframe name="mainframe" style="width:100%; height:575px;background-image:url('../images/bg3.jpg')" src="cover.html">
+					</iframe>
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>
+<select name="txt_parentid">
+	<option value='0'></option>
+	<?php
+
+	function GetZhiweiType($parentid){
+	global $line;
+	$str = "select * from zhiwei where shangjiid=".$parentid;
+	$arr = mysql_query($str);
+	if ($arr != null){
+			while ($result = mysql_fetch_array($arr)){
+				echo "<option value='".$result['id']."'>".$line.$result['name']."</option>";
+				$line .= "|___";
+				GetZhiweiType($result['id']);
+				$line = substr($line, 0, strlen($line)-4);
+			}
+		}
+	}
+	
+	
+	require_once("../conn/Conn_DB.php");
+	$line = "|___";
+	GetZhiweiType('0');
+
+	?>
+</select>
+<select name="txt_parentid">
+	<option value='0'></option>
+	<?php
+
+	function GetZhiweiType($parentid){
+	global $line;
+	global $parentid2;
+	$str = "select * from zhiwei where shangjiid=".$parentid;
+	$arr = mysql_query($str);
+	if ($arr != null){
+			while ($result = mysql_fetch_array($arr)){
+				echo "<option value='".$result['id']."'".($parentid2 == $result['id'] ? "selected":"").">".$line.$result['name']."</option>";
+				$line .= "|___";
+				GetZhiweiType($result['id']);
+				$line = substr($line, 0, strlen($line)-4);
+			}
+		}
+	}
+	
+	
+	require_once("../conn/Conn_DB.php");
+	$line = "|___";
+	GetZhiweiType('0');
+
+	?>
+</select>
+<select name="txt_parentid">
+	<option value='0'></option>
+	<?php
+
+	function GetZhiweiType($parentid){
+	global $line;
+	$str = "select * from zhiwei where shangjiid=".$parentid;
+	$arr = mysql_query($str);
+	if ($arr != null){
+			while ($result = mysql_fetch_array($arr)){
+				echo "<option value='".$result['id']."'".(1 == $result['zhuangtai'] ? "disabled":"").">".$line.$result['name']."</option>";
+				$line .= "|___";
+				GetZhiweiType($result['id']);
+				$line = substr($line, 0, strlen($line)-4);
+			}
+		}
+	}
+	
+	
+	require_once("../conn/Conn_DB.php");
+	$line = "|___";
+	GetZhiweiType('0');
+
+	?>
+</select>
+<html>
+    <head><title>员工个人基础信息</title></head>
+	<link rel="stylesheet" href="../css/style.css" type="text/css" >
+    <body style = "margin=0px 0px 0px 0px;">
+    <?php
+    session_start();
+        require_once("../conn/Conn_DB.php");
+    	include 'action/session_check.php';
+            $id = $_SESSION['user2'];
+            $str = "select * from yuangong where id = $id";
+            $arr = mysql_query($str);
+            $result = mysql_fetch_array($arr);
+    ?>
+    <table>
+    <tr><td colspan="2" align="center" class="tabletitle">个人基础信息</td><tr>
+    </table>
+    <table align="center" border="0">
+        <tr>
+            <td>编号：</td>
+            <td><?php echo $result["id"];?></td>
+        </tr>
+        <tr>
+            <td>姓名：</td>
+            <td><?php echo $result["xingming"];?></td>
+        </tr>
+        <tr>
+            <td>性别：</td>
+            <td><?php echo $result["gender"];?></td>
+        </tr>
+        <tr>
+            <td>职位编号：</td>
+            <td><?php echo $result["zhiweibianhao"];?></td>
+        </tr>
+        <tr>
+            <td>生日：</td>   
+            <td><?php echo $result["birthdate"];?></td> 
+        </tr>
+        <tr>
+            <td>政治面貌：</td>
+            <td><?php echo $result["zhengzhimianmao"];?></td>
+        </tr>
+        <tr>
+            <td>民族：</td>
+            <td><?php echo $result["minzu"];?></td>
+        </tr>
+        <tr>
+            <td>籍贯：</td>
+            <td><?php echo $result["jiguan"];?></td>
+        </tr>
+        <tr>
+            <td>联系地址：</td>
+            <td><?php echo $result["lianxidizhi"];?></td>
+        </tr>
+        <tr>
+            <td>学历编号：</td>
+            <td><?php echo $result["xuelibianhao"];?></td>
+        </tr>
+        <tr>
+            <td>身份证号：</td>
+            <td><?php echo $result["idcard"];?></td>
+        </tr>
+        <tr>
+            <td>联系电话：</td>
+            <td><?php echo $result["lianxidianhua"];?></td>
+        </tr>
+        <tr>
+            <td>毕业学校：</td>
+            <td><?php echo $result["biyexuexiao"];?></td>
+        </tr>
+        <tr>
+            <td>专业：</td>
+            <td><?php echo $result["zhuanye"];?></td>
+        </tr>
+        <tr>
+            <td>邮箱：</td>
+            <td><?php echo $result["youxiang"];?></td>
+        </tr>
+        <tr>
+            <td>入职时间：</td>
+            <td><?php echo $result["ruzhishijian"];?></td>
+        </tr>
+    </table>
+    </body>
+</html>
+<html>
+<head><title>员工个人绩效考核</title></head>
+<link rel="stylesheet" href="../css/style.css" type="text/css" >
+<body style = "margin=0px 0px 0px 0px;">
+<?php
+    session_start();
+        require_once("../conn/Conn_DB.php");
+    	include 'action/session_check.php';
+            $id = $_SESSION['user2'];
+            $str = "select * from yuangong where id = $id";
+            $arr = mysql_query($str);
+            $result = mysql_fetch_array($arr);
+    ?>
+    <table>
+    <tr><td colspan="2" align="center" class="tabletitle">个人绩效考核</td><tr>
+    </table>
+    <table align = "center" border="0">
+        <tr>
+            <td>主管考评：</td>
+            <td><?php echo $result["zhuguan"];?></td>
+        </tr>
+        <tr>
+            <td>自我考评：</td>
+            <td><?php echo $result["ziwo"];?></td>
+        </tr>
+        <tr>
+            <td>同事考评：</td>
+            <td><?php echo $result["tongshi"];?></td>
+        </tr>
+        <tr>
+            <td>下属考评：</td>
+            <td><?php echo $result["xiashu"];?></td>
+        </tr>
+        <tr>
+            <td>总考评：</td>
+            <td><?php echo $result["zongping"];?></td>
+        </tr>
+    </table>
+</body>
+</html>
+<html>
+<head><title>员工个人薪酬查询</title></head>
+<link rel="stylesheet" href="../css/style.css" type="text/css" >
+<body style = "margin=0px 0px 0px 0px;">
+<?php
+    session_start();
+        require_once("../conn/Conn_DB.php");
+    	include 'action/session_check.php';
+            $id = $_SESSION['user2'];
+            $str = "select * from yuangong where id = $id";
+            $arr = mysql_query($str);
+            $result = mysql_fetch_array($arr);
+            $str_jiben = "select * from jiben where id = (select jibengongzibianhao from yuangong where id = $id)";
+            $arr_jiben = mysql_query($str_jiben);
+            $result_jiben = mysql_fetch_array($arr_jiben);
+            $str_jixiao = "select * from jixiao where id = (select jixiaogongzibianhao from yuangong where id = $id)";
+            $arr_jixiao = mysql_query($str_jixiao);
+            $result_jixiao = mysql_fetch_array($arr_jixiao);
+            $str_zhiwei = "select * from zhiwei where id = (select zhiweibianhao from yuangong where id = $id)";
+            $arr_zhiwei = mysql_query($str_zhiwei);
+            $result_zhiwei = mysql_fetch_array($arr_zhiwei);
+            $str_xueli = "select * from xueli where id = (select xuelibianhao from yuangong where id = $id)";
+            $arr_xueli = mysql_query($str_xueli);
+            $result_xueli = mysql_fetch_array($arr_xueli);
+    ?>
+    <table>
+    <tr><td colspan="2" align="center" class="tabletitle">个人薪酬查询</td><tr>
+    </table>
+    <table align = "center" border="0">
+        <tr>
+            <td>基本工资：</td>
+            <td><?php echo $result_jiben["gongzi"];?></td>
+        </tr>
+        <tr>
+            <td>职位工资：</td>
+            <td><?php echo $result_zhiwei["gongzi"];?></td>
+        </tr>
+        <tr>
+            <td>绩效工资：</td>
+            <td><?php echo $result_jixiao["gongzi"];?></td>
+        </tr>
+        <tr>
+            <td>补贴：</td>
+            <td><?php echo $result_jiben["butie"] + $result_xueli["butie"];?></td>
+        </tr>
+        <tr>
+            <td>总工资：</td>
+            <td><?php echo $result_jiben["gongzi"] + $result_zhiwei["gongzi"] + 
+                        $result_jixiao["gongzi"]  + $result_jiben["butie"] + $result_xueli["butie"];?></td>
+        </tr>
+    </table>
+</body>
+</html>
+<html>
+
+<head>
+	<title>
+		新增学历补贴	
+	</title>
+</head>
+<link rel="stylesheet" href="../css/style.css" type="text/css" >
+<body style="margin:0px 0px 0px 0px;">
+	<?php include 'action/session_check.php' ?>
+	<form action="action/xueli_add_do.php" method="post">
+		<table class="add">
+			<tr>
+				<td colspan="2" align="center" class="tabletitle">
+					新增学历补贴	
+				</td>
+			</tr>
+			<tr>
+				<td>学历：</td>
+				<td>
+					<input type="text" name="txt_xueli" />
+				</td>
+			</tr>
+			<tr>
+				<td>补贴：</td>
+				<td><input type="text" name="txt_butie" /></td>
+			</tr>
+			<tr>
+				<td colspan="2" align="center">
+					<input type="submit" value="保存" />
+				</td>
+			</tr>
+		</table>
+	</form>
+</body>
+
+</html>
+<html>
+
+<head><title>学历补贴管理</title></head>
+<link rel="stylesheet" href="../css/style.css" type="text/css" >
+<body style="margin:0px 0px 0px 0px;">
+	<?php include 'action/session_check.php'; ?>
+	<h1>学历补贴</h1>
+	<form action="" method="post">
+		<table align="center">
+			<?php 
+				require_once("../conn/Conn_DB.php");
+				include 'fenye.php';
+				$str = "select * from xueli order by id";
+				$address = "xueli_manager.php";
+				$params = PageOrdered($str, $address);
+				$str = "select * from xueli order by id limit $params[0], $params[1]";
+				$arr = mysql_query($str);
+			?>
+			<tr align="center" class="tabletitle">
+				<td>学历</td><td>补贴</td><td colspan="2">操作</td>
+			</tr>
+			<?php
+				while($result = mysql_fetch_array($arr)){
+			?>
+			<tr align="center">
+				<td ><?php echo $result["xueli"]; ?></td>
+				<td ><?php echo $result['butie'];?></td>
+				<td ><a href="xueli_update.php?id=<?php echo $result["id"]; ?>">修改</a></td>
+				<td ><a href="action/xueli_delete_do.php?id=<?php echo $result['id']; ?>">删除</a></td>
+			</tr>
+			<?php } ?>
+		</table>
+	</form>
+</body>
+
+</html>
+<html>
+
+<head>
+	<title>
+		编辑学历补贴	
+	</title>
+</head>
+<link rel="stylesheet" href="../css/style.css" type="text/css" >
+<body style="margin:0px 0px 0px 0px;">
+<?php include 'action/session_check.php';
+	require_once("../conn/Conn_DB.php");
+	session_start();
+	if ($_GET['id'] != "")
+		$_SESSION['xueliid'] = $_GET['id'];
+	$str = "select * from xueli where id = ".$_SESSION['xueliid'];
+	$arr = mysql_query($str);
+	$result = mysql_fetch_array($arr);
+?>
+	<form action="action/xueli_update_do.php" method="post">
+		<table class="add">
+			<tr>
+				<td colspan="2" align="center" class="tabletitle">
+					编辑学历补贴	
+				</td>
+			</tr>
+			<tr>
+				<td>学历：</td>
+				<td>
+				<input type="text" disabled value="<?php echo $result['xueli']; ?>" />
+				</td>
+			</tr>
+			<tr>
+				<td>补贴：</td>
+				<td><input type="text" name="txt_butie" value="<?php echo $result['butie']; ?>" /></td>
+			</tr>
+			<tr>
+			<input type="hidden" name="txt_id" value="<?php echo $result['id']; ?>" />
+				<td colspan="2" align="center">
+					<input type="submit" value="保存" />
+					<input type="button" value="返回" onclick="window.location.href='xueli_manager.php';" />
+				</td>
+			</tr>
+		</table>
+	</form>
+</body>
+
+</html>
+<html>
+
+<head>
+	<title>
+		添加职位类别
+	</title>
+</head>
+<link rel="stylesheet" href="../css/style.css" type="text/css" >
+
+<body style="margin:0px 0px 0px 0px;">
+	<?php include 'action/session_check.php' ?>
+	<form action="action/zhiweitype_add_do.php" method="post">
+		<table class="add" cellpadding="5">
+			<tr>
+				<td colspan="2" align="center" class="tabletitle">
+					添加职位类别
+				</td>
+			</tr>
+			<tr>
+				<td><font color="red"> * </font>上级</td>
+				<td><?php include 'select_zhiweitype1.php'; ?></td>
+			</tr>
+			<tr>
+				<td><font color="red"> * </font>职位</td>
+				<td><input type="text" name="txt_name" /></td>
+			</tr>
+			<tr>
+				<td>职位人数</td>
+				<td>
+					<input onkeyup="this.value=this.value.replace(/\D/g,'')"  
+					onafterpaste="this.value=this.value.replace(/\D/g,'')" name="txt_renshu" type="text" />
+				</td>
+			</tr>
+			<tr>
+				<td>职位工资</td>
+				<td>
+					<input onkeyup="this.value=this.value.replace(/\D/g,'')" 
+					onafterpaste="this.value=this.value.replace(/\D/g,'')" name="txt_gongzi" type="text"/>  
+				</td>
+			</tr>
+			<tr>
+				<td>绩效权重</td>
+				<td>
+					<input onkeyup="this.value=this.value.replace(/\D/g,'')" 
+					onafterpaste="this.value=this.value.replace(/\D/g,'')" name="txt_quanzhong" type="text"/>%
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2" align="center">
+					<input type="submit" value="保存" />
+				</td>
+			</tr>
+		</table>
+	</form>
+</body>
+
+</html>
+<html>
+
+<head><title>职位类别管理</title></head>
+<link rel="stylesheet" href="../css/style.css" type="text/css" >
+<body style="margin:0px 0px 0px 0px;">
+	<?php include 'action/session_check.php'; ?>
+	<h1>职位统计管理</h1>
+	<form action="" method="post">
+		<table align="center">
+			<?php 
+				require_once("../conn/Conn_DB.php");
+				include 'fenye.php';
+				$str = "select * from zhiwei order by shangjiid, id, zhuangtai";
+				$address = "zhiweitype_manager.php";
+				$params = PageOrdered($str, $address);
+		 	?>
+			<tr align="center" class="tabletitle">
+				<td>职位名称</td><td>上级职位</td>
+				<td>职位计划人数</td><td>现有人数</td><td>人数缺口</td>
+				<td>基本工资</td><td>状态</td>
+				<td colspan="2">操作</td>
+			</tr>
+			<?php
+
+				$str = "select * from zhiwei order by shangjiid, id, zhuangtai limit ".$params[0].", $params[1]";
+				$arr = mysql_query($str);
+				while($result = mysql_fetch_array($arr)){
+			?>
+			<tr align="center">
+				<td ><?php echo $result["name"]; ?></td>
+				<td ><?php
+						$str2 = "select name from zhiwei where id = ".$result['shangjiid'];
+						if ($arr2 = mysql_query($str2)){
+							$result2 = mysql_fetch_array($arr2);
+							echo $result2['name'];
+						}
+						else 
+							echo "错误";
+					?></td>
+				<td ><?php echo $result["jihuarenshu"]; ?></td>
+				<td ><?php echo $result["xianyourenshu"]; ?></td>
+				<td ><?php echo $result["jihuarenshu"] - $result['xianyourenshu']; ?></td>
+				<td ><?php echo $result["gongzi"]; ?></td>
+				<td ><?php 
+						switch($result["zhuangtai"]){
+							case 0: echo "<font color='red'>补员</font>";break;
+							case 1: echo "<font color=blue>满员</font>";break;
+							default: break;
+						}
+					?></td>
+				<td ><a href="zhiweitype_update.php?id=<?php echo $result["id"]; ?>">编辑</a></td>
+				<td ><a href="action/zhiweitype_delete_do.php?id=<?php echo $result['id']; ?>">删除</a></td>
+			</tr>
+			<?php } ?>
+		</table>
+	</form>
+</body>
+
+</html>
+<html>
+
+<head><title>编辑职位类别</title></head>
+<link rel="stylesheet" href="../css/style.css" type="text/css" >
+<body style="margin:0px 0px 0px 0px">
+	<?php	include 'action/session_check.php'; ?>
+	<form action="action/zhiweitype_update_do.php" method="post">
+		<?php
+		session_start();
+			if ($_GET['id'] != ""){
+				$_SESSION['zhiweiupdateid'] = $_GET['id'];
+			}
+				require_once('../conn/Conn_DB.php');
+				$id = $_SESSION['zhiweiupdateid'];
+				$str = "select * from zhiwei where id = ".$id;
+				$arr = mysql_query($str);
+				$result = mysql_fetch_array($arr);
+				$str2 = "select name from zhiwei where id = ".$result['shangjiid'];
+				$arr2 = mysql_query($str2);
+				$result2 = mysql_fetch_array($arr2);
+		?>
+		<table class="add">
+			<tr>
+				<td colspan="2" align="center" class="tabletitle">编辑职位类别</td>
+			</tr>
+			<tr>
+				<td><font color="red">*</font>上级</td>
+				<td><?php echo $result2['name']; ?></td>
+			</tr>
+			<tr>
+				<td><font color="red">*</font>职位名称</td>
+				<td><?php echo $result['name'] ?></td>
+			</tr>
+			<tr>
+				<td>职位人数：</td>
+				<td><input type="text" name="txt_renshu" value="<?php echo $result['jihuarenshu'] ?>" /></td>
+			</tr>
+			<tr>
+				<td>职位工资：</td>
+				<td><input type="text" name="txt_gongzi" value="<?php echo $result['gongzi'] ?>" /></td>
+			</tr>
+			<tr>
+				<td>绩效权重：</td>
+				<td><input type="text" name="txt_quanzhong" value="<?php echo $result['jixiaoquanzhong'] ?>" />%</td>
+			</tr>
+			<tr>
+				<td colspan="2" align="center">
+					<input type="hidden" name="txt_id" value="<?php echo $result['id'] ?>" />
+					<input type="submit" value="保存"/>
+					<input type="button" value="返回" onclick="window.location.href='zhiweitype_manager.php';"/>
+				</td>
+			</tr>
+		</table>
+	</form>
+</body>
+
+</html>
+<html>
+
+<head>
+	<title>
+		新增职员
+	</title>
+</head>
+<link href="../css/style.css" rel="stylesheet" type="text/css">
+<body style="margin:0px 0px 0px 0px;">
+	<?php include 'action/session_check.php' ?>
+	<form action="action/zhiyuan_add_do.php" method="post">
+		<table class="add" cellpadding="5" >
+			<tr>
+				<td colspan="6" align="center" class="tabletitle">
+					新增职员	
+				</td>
+			</tr>
+			<tr>
+				<td><font color='red'>*</font>职位：</td>
+				<td colspan="3"><?php include 'select_zhiweitype3.php'; ?></td>
+				<td><font color='red'>*</font>姓名：</td>
+				<td><input type="text" name="txt_name" /></td>
+			</tr>
+			<tr>
+				<td>性别：</td>
+				<td colspan="3">
+					<input type="radio" name="txt_gender" value="男" />男
+					<input type="radio" name="txt_gender" value="女" />女
+				</td>
+				<td>民族：</td>
+				<td><input type="text" name="txt_minzu" /></td>
+			</tr>
+			<tr>
+				<td>出生日期：</td>
+				<td colspan="3">
+					<input type="date" name="txt_birthdate" />
+				</td>
+				<td>政治面貌：</td>
+				<td>
+					<input type="text" name="txt_mianmao" />
+				</td>
+			</tr>
+			<tr>
+				<td>籍贯：</td>
+				<td colspan="5"><textarea cols="65" rows="1" name="txt_jiguan" ></textarea></td>
+			</tr>
+			<tr>
+				<td>身份证号：</td>
+				<td><input type="text" name="txt_idcard" /></td>
+				<td>邮箱：</td>
+				<td><input type="text" name="txt_youxiang" /></td>
+				<td>邮编：</td>
+				<td><input type="text" name="txt_youbian" /></td>
+			</tr>
+			<tr>
+				<td>联系地址：</td>
+				<td colspan="5"><textarea cols="65" rows="1" name="txt_dizhi" ></textarea></td>
+			</tr>
+			<tr>
+				<td>毕业学校：</td>
+				<td><input type="text" name="txt_xuexiao" /></td>
+				<td>专业：</td>
+				<td><input type="text" name="txt_zhuanye" /></td>
+				<td><font color='red'>*</font>学历：</td>
+				<td>
+					<select name="txt_xueli" >
+<?php
+	require_once("../conn/Conn_DB.php");
+	$str = "select * from xueli";
+	$arr = mysql_query($str);
+	while ($result = mysql_fetch_array($arr)){
+		echo "<option value='".$result['id']."'>".$result['xueli']."</option>";
+	}
+?>
+					</select></td>
+			</tr>
+			<tr>
+				<td>联系电话：</td>
+				<td><input type="text" name="txt_dianhua" /></td>
+				<td><font color='red'>*</font>职位状态：</td>
+				<td>
+					<input type="radio" name="txt_zhiweizhuangtai" value="0" />试用
+					<input type="radio" name="txt_zhiweizhuangtai" value="1" />正式
+				</td>
+				<td><font color='red'>*</font>绩效级别：</td>
+				<td><select name="txt_jixiao" >
+<?php
+	$str = "select * from jixiao";
+	$arr = mysql_query($str);
+	while ($result = mysql_fetch_array($arr)){
+		echo "<option value='".$result['id']."'>".$result['jibie']."</option>";
+	}
+?>
+				</select></td>
+			</tr>
+			<tr>
+				<td><font color='red'>*</font>入职时间：</td>
+				<td><input type="date" name="txt_ruzhishijian" /></td>
+				<td><font color='red'>*</font>签约时间：</td>
+				<td><input type="date" name="txt_qianyueshijian" /></td>
+				<td><font color='red'>*</font>合同编号：</td>
+				<td><select name="txt_hetongbianhao" >
+<?php
+	$str = "select * from hetong";
+	$arr = mysql_query($str);
+	while ($result = mysql_fetch_array($arr)){
+		echo "<option value='".$result['id']."'>".$result['bianhao']."</option>";
+	}
+?>
+				</select></td>
+			</tr>
+			<tr>
+				<td colspan="6" align="center">
+					<input type="submit" value="保存" />
+					<input type="button" value="取消" onclick="window.location.href='index.html';" />
+				</td>
+			</tr>
+		</table>
+	</form>
+</body>
+
+</html>
+<html>
+
+<head>
+	<title>
+		职位变动登记	
+	</title>
+</head>
+<link rel="stylesheet" href="../css/style.css" type="text/css" >
+<body style="margin:0px 0px 0px 0px;">
+<?php include 'action/session_check.php';
+	require_once("../conn/Conn_DB.php");
+	session_start();
+	if ($_GET['id'] != "")
+		$_SESSION['zhiyuanid'] = $_GET['id'];
+	$str = "select * from yuangong where id = ".$_SESSION['zhiyuanid'];
+	$arr = mysql_query($str);
+	$result = mysql_fetch_array($arr);
+?>
+	<form action="action/zhiyuan_biandong_do.php" method="post">
+		<table class="add">
+			<tr>
+				<td colspan="2" align="center" class="tabletitle">
+					职位变动登记表	
+				</td>
+			</tr>
+			<tr>
+				<td>姓名：</td>
+				<td>
+				<input type="text" disabled value="<?php echo $result['xingming']; ?>" />
+				</td>
+			</tr>
+			<tr>
+				<td>现职位：</td>
+				<td><input type="text" disabled value="<?php
+					$str2 = "select name from zhiwei where id = ".$result['zhiweibianhao'];
+					$arr2 = mysql_query($str2);
+					$result2 = mysql_fetch_array($arr2);
+					echo $result2['name'];
+				?>" /></td>
+			</tr>
+			<tr>
+				<td>目标职位：</td>
+				<td><?php include "select_zhiweitype3.php"; ?></td>
+			</tr>
+			<tr>
+			<input type="hidden" name="txt_id" value="<?php echo $result['id']; ?>" />
+				<td colspan="2" align="center">
+					<input type="submit" value="保存" />
+					<input type="button" value="返回" onclick="window.location.href='zhiyuan_manager.php';" />
+				</td>
+			</tr>
+		</table>
+	</form>
+</body>
+
+</html>
+<html>
+
+<head>
+	<title>
+		职员详细信息
+	</title>
+</head>
+<link rel="stylesheet" href="../css/style.css" type="text/css" >
+<body style="margin:0px 0px 0px 0px;">
+	<?php include 'action/session_check.php';
+		require_once("../conn/Conn_DB.php");	
+		$str = "select * from yuangong where id = ".$_GET['id'];
+		$arr = mysql_query($str);
+		$result = mysql_fetch_array($arr);
+		$str2 = "select * from zhiwei where id = ".$result['zhiweibianhao'];
+		$arr2 = mysql_query($str2);
+		$zhiwei = mysql_fetch_array($arr2);
+		$str3 = "select * from jixiao where id = ".$result['jixiaogongzibianhao'];
+		$arr3 = mysql_query($str3);
+		$jixiao = mysql_fetch_array($arr3);
+		$str4 = "select * from hetong where id = ".$result['hetongbianhao'];
+		$arr4 = mysql_query($str4);
+		$hetong = mysql_fetch_array($arr4);
+		$str5 = "select * from jiben where id = ".$result['jibengongzibianhao'];
+		$arr5 = mysql_query($str5);
+		$jiben = mysql_fetch_array($arr5);
+		$str6 = "select * from xueli where id = ".$result['xuelibianhao'];
+		$arr6 = mysql_query($str6);
+		$xueli = mysql_fetch_array($arr6);
+	 ?>
+	<form action="zhiyuan_update.php" method="post">
+		<table class="add" >
+			<tr>
+				<td colspan="6" align="center" class="tabletitle">
+					职员信息一览表	
+				</td>
+			</tr>
+			<tr>
+				<td>职位：</td>
+				<td>
+					<?php echo $zhiwei['name']; ?>
+				</td>
+				<td>姓名：</td>
+				<td><?php echo $result['xingming']; ?></td>
+			</tr>
+			<tr>
+				<td>性别：</td>
+				<td><?php echo $result['gender']; ?></td>
+				<td>民族：</td>
+				<td><?php echo $result['minzu']; ?></td>
+			</tr>
+			<tr>
+				<td>出生日期：</td>
+				<td>
+				<?php echo $result['birthdate']; ?>
+				</td>
+				<td>政治面貌：</td>
+				<td>
+				<?php echo $result['zhengzhimianmao']; ?>
+				</td>
+			</tr>
+			<tr>
+				<td>籍贯：</td>
+				<td><?php echo $result['jiguan'];?></td>
+			</tr>
+			<tr>
+				<td>身份证号：</td>
+				<td><?php echo $result['idcard']; ?></td>
+				<td>邮箱：</td>
+				<td><?php echo $result['youxiang']; ?></td>
+				<td>邮编：</td>
+				<td><?php echo $result['youbian']; ?></td>
+			</tr>
+			<tr>
+				<td>联系地址：</td>
+				<td><?php echo $result['lianxidizhi']; ?></td>
+			</tr>
+			<tr>
+				<td>毕业学校：</td>
+				<td><?php echo $result['biyexuexiao']; ?></td>
+				<td>专业：</td>
+				<td><?php echo $result['zhuanye']; ?></td>
+				<td>学历：</td>
+				<td>
+				<?php echo $xueli['xueli']; ?>
+				</td>
+			</tr>
+			<tr>
+				<td>联系电话：</td>
+				<td><?php echo $result['lianxidianhua']; ?></td>
+				<td>职位状态：</td>
+				<td>
+				<?php
+		switch($result['zhiweizhuangtai']){
+			case 0:
+					echo "试用";
+				break;
+			case 1:
+					echo "正式";
+				break;
+			default:
+				break;
+		}
+				?>
+				</td>
+				<td>绩效级别：</td>
+				<td><?php echo $jixiao['jibie']; ?></td>
+			</tr>
+			<tr>
+				<td>入职时间：</td>
+				<td><?php echo $result['ruzhishijian']; ?></td>
+				<td>签约时间：</td>
+				<td><?php echo $result['qianyueshijian']; ?></td>
+				<td>合同编号：</td>
+				<td>
+				<?php echo $result['hetongbianhao']; ?>
+				</td>
+			</tr>
+			<tr>
+				<td>绩效工资：</td>
+				<td><?php echo $jixiao['gongzi']; ?></td>
+				<td>基本工资：</td>
+				<td><?php echo $jiben['gongzi']; ?></td>
+				<td>职位工资：</td>
+				<td>
+				<?php echo $zhiwei['gongzi']; ?>
+				</td>
+			</tr>
+			<tr>
+				<td>合同有效期：</td>
+				<td><?php echo $hetong['youxiaoqi']; ?></td>
+				<td>学历补贴：</td>
+				<td><?php echo $xueli['butie']; ?></td>
+				<td>工龄补贴：</td>
+				<td>
+				<?php echo $jiben['butie']; ?>
+				</td>
+			</tr>
+			<tr>
+			<input type="hidden" name="id" value="<?php echo $result['id'];?>" />
+				<td colspan="6" align="center">
+					<input type="submit" value="修改" /> 
+					<input type="button" value="返回" onclick="window.location.href='zhiyuan_manager.php';" />
+				</td>
+			</tr>
+		</table>
+	</form>
+</body>
+
+</html>
+<html>
+
+<head><title>职员信息表</title></head>
+<link rel="stylesheet" href="../css/style.css" type="text/css" >
+<body style="margin:0px 0px 0px 0px;">
+	<?php include 'action/session_check.php'; ?>
+	<h1>职员信息表</h1>
+	<form action="" method="post">
+		<table align="center">
+			<?php 
+				require_once("../conn/Conn_DB.php");
+				include 'fenye.php';
+				$str = "select * from yuangong order by id";
+				$address = "zhiyuan_manager.php";
+				$params = PageOrdered($str, $address);
+				$str = "select * from yuangong order by id limit $params[0], $params[1]";
+				$arr = mysql_query($str);
+			?>
+			<tr align="center" class="tabletitle">
+				<td>职员编号</td><td>姓名</td><td>职位</td><td>状态</td><td colspan="6">操作</td>
+			</tr>
+			<?php
+				while($result = mysql_fetch_array($arr)){
+			?>
+			<tr align="center">
+				<td ><?php echo $result["id"]; ?></td>
+				<td ><?php echo $result['xingming'];?></td>
+				<td ><?php
+					$str2 = "select name from zhiwei where id = ".$result['zhiweibianhao'];
+					$arr2 = mysql_query($str2);
+					if ($result2 = mysql_fetch_array($arr2)){
+						echo $result2['name']; 
+					}
+				?></td>
+				<td ><?php 
+					switch($result['zhiweizhuangtai']){
+						case 0:
+							echo "试用";
+							break;
+						case 1:
+							echo "正式";
+							break;
+						default:
+							break;
+					}
+				?></td>
+				<td ><a href="zhiyuan_info.php?id=<?php echo $result["id"]; ?>">查看详情</a></td>
+				<td ><a href="zhiyuan_biandong.php?id=<?php echo $result["id"]; ?>">职位变动</a></td>
+				<td ><a href="action/zhiyuan_jiegu_do.php?id=<?php echo $result["id"]; ?>">解雇</a></td>
+				<?php 
+				if ($result['zhiweizhuangtai'] == 0)
+				echo "<td ><a href='action/zhiyuan_zhuanzheng_do.php?id=".$result['id']."'>转正</a></td>";
+				?>
+			</tr>
+			<?php } ?>
+		</table>
+	</form>
+</body>
+
+</html>
+<html>
+
+<head>
+	<title>
+		职员信息修改
+	</title>
+</head>
+<link rel="stylesheet" href="../css/style.css" type="text/css" >
+<body style="margin:0px 0px 0px 0px;">
+	<?php include 'action/session_check.php';
+		require_once('../conn/Conn_DB.php');
+		if ($_POST['id'] != "")
+			$_SESSION['zhiyuanupdateid'] = $_POST['id'];
+		$str = "select * from yuangong where id = ".$_SESSION['zhiyuanupdateid'];
+		$arr = mysql_query($str);
+		$result = mysql_fetch_array($arr);
+		$str2 = "select * from zhiwei where id = ".$result['zhiweibianhao'];
+		$arr2 = mysql_query($str2);
+		$zhiwei = mysql_fetch_array($arr2);
+	?>
+	<form action="action/zhiyuan_update_do.php" method="post">
+		<table class="add" >
+			<tr>
+				<td colspan="6" align="center" class="tabletitle">
+					职员基本信息修改	
+				</td>
+			</tr>
+			<tr>
+				<td><font color='red'>*</font>职位：</td>
+				<td colspan="3"><?php echo $zhiwei['name']; ?></td>
+				<td><font color='red'>*</font>姓名：</td>
+				<td><input type="text" name="txt_name" value="<?php echo $result['xingming']; ?>" /></td>
+			</tr>
+			<tr>
+				<td>性别：</td>
+				<td colspan="3">
+<?php
+		if ($result['gender'] == "男"){
+			echo "<input type='radio' name='txt_gender' value='男' checked='true' />男";
+			echo "<input type='radio' name='txt_gender' value='女' />女";
+		}
+		else{
+			echo "<input type='radio' name='txt_gender' value='女' checked='true' />女";
+			echo "<input type='radio' name='txt_gender' value='男' />男";
+		}
+?>
+				</td>
+				<td>民族：</td>
+				<td><input type="text" name="txt_minzu" value="<?php echo $result['minzu']; ?>" /></td>
+			</tr>
+			<tr>
+				<td>出生日期：</td>
+				<td colspan="3">
+				<input type="date" name="txt_birthdate" value="<?php echo $result['birthdate']; ?>" />
+				</td>
+				<td>政治面貌：</td>
+				<td>
+				<input type="text" name="txt_mianmao" value="<?php echo $result['zhengzhimianmao']; ?>" />
+				</td>
+			</tr>
+			<tr>
+				<td>籍贯：</td>
+				<td colspan="5"><textarea cols="65" rows="1" name="txt_jiguan"><?php echo $result['jiguan']; ?></textarea></td>
+			</tr>
+			<tr>
+				<td>身份证号：</td>
+				<td><input type="text" name="txt_idcard" value="<?php echo $result['idcard']; ?>" /></td>
+				<td>邮箱：</td>
+				<td><input type="text" name="txt_youxiang" value="<?php echo $result['youxiang']; ?>" /></td>
+				<td>邮编：</td>
+				<td><input type="text" name="txt_youbian" value="<?php echo $result['youbian']; ?>" /></td>
+			</tr>
+			<tr>
+				<td>联系地址：</td>
+				<td colspan="5"><textarea cols="65" rows="1" name="txt_dizhi" ><?php echo $result['lianxidizhi']; ?></textarea></td>
+			</tr>
+			<tr>
+				<td>毕业学校：</td>
+				<td><input type="text" name="txt_xuexiao" value="<?php echo $result['biyexuexiao']; ?>" /></td>
+				<td>专业：</td>
+				<td><input type="text" name="txt_zhuanye" value="<?php echo $result['zhuanye']; ?>"/></td>
+				<td><font color='red'>*</font>学历：</td>
+				<td>
+<?php
+	$str3 = "select * from xueli where id = ".$result['xuelibianhao'];
+	$arr3 = mysql_query($str3);
+	while ($result3 = mysql_fetch_array($arr3)){
+		echo $result3['xueli'];
+	}
+?>
+				</td>
+			</tr>
+			<tr>
+				<td>联系电话：</td>
+				<td><input type="text" name="txt_dianhua" value="<?php echo $result['lianxidianhua']; ?>" /></td>
+				<td><font color='red'>*</font>职位状态：</td>
+				<td>
+<?php
+	switch($result['zhiweizhuangtai']){
+		case 0:
+			echo "试用";
+			break;
+		case 1:
+			echo "正式";
+			break;
+		default:
+			break;
+	}
+?>
+				</td>
+				<td><font color='red'>*</font>绩效级别：</td>
+				<td>
+<?php
+	$str4 = "select * from jixiao where id = ".$result['jixiaogongzibianhao'];
+	$arr4 = mysql_query($str4);
+	while ($result4 = mysql_fetch_array($arr4)){
+		echo $result4['jibie']; 
+	}
+?>
+				</td>
+			</tr>
+			<tr>
+				<td><font color='red'>*</font>入职时间：</td>
+				<td><?php echo $result['ruzhishijian'] ?></td>
+				<td><font color='red'>*</font>签约时间：</td>
+				<td><?php echo $result['qianyueshijian']; ?></td>
+				<td><font color='red'>*</font>合同编号：</td>
+				<td><?php echo $result['hetongbianhao'] ?></td>
+			</tr>
+			<tr>
+			<input type="hidden" name="id" value="<?php echo $result['id']; ?>" />
+				<td colspan="6" align="center">
+					<input type="submit" value="保存" />
+					<input type="button" value="取消" onclick="window.location.href='cover.html';" />
+				</td>
+			</tr>
+		</table>
+	</form>
+</body>
+
+</html>
+<?php
+
+require_once("../../conn/Conn_DB.php");
+if ($_POST['txt_password_old'] != "" && $_POST['txt_password_new'] != ""){
+	$oldpassword= $_POST['txt_password_old'];
+	$newpassword = $_POST['txt_password_new'];
+	$id = $_POST["txt_id"];
+	$str = "select password from yuangong where id = $id";
+	$arr = mysql_query($str);
+	$result = mysql_fetch_array($arr);
+	if ($result['password'] != $oldpassword){
+		echo "<script>
+			alert('原密码输入错误');
+			window.location.href='../adminpwd_update.php';
+		</script>";
+		exit(0);
+	}
+	$str = "update yuangong set password = '$newpassword' where id = $id";
+	$update = mysql_query($str);
+	if ($update){
+		echo "<script>
+			alert('密码修改成功');
+			window.location.href='../admin_manager.php';
+		</script>";
+	}
+	else {
+		echo "<script>
+			alert('密码修改失败');
+			window.location.href='../adminpwd_update.php';
+		</script>";
+	}
+}
+else {
+	echo "<script>
+		alert('密码不能为空！');
+		window.location.href='../admin_update.php';
+	</script>";
+}
+
+?>
+<?php
+
+function idExists($bianhao){
+	$str = "select id from yuangong";
+	$arr = mysql_query($str);
+	while ($result = mysql_fetch_array($arr)){
+		if ($result['id'] == $bianhao){
+			return true;
+		}
+	}
+	return false;
+}
+require_once("../../conn/Conn_DB.php");
+if ($_POST['txt_yuangongbianhao'] != "" && $_POST['txt_password1'] != "" && $_POST['txt_password2'] != ""){
+	$yuangongbianhao = $_POST['txt_yuangongbianhao'];
+	$password1 = $_POST['txt_password1'];
+	$password2 = $_POST['txt_password2'];
+	if ($password1 != $password2){
+		echo "<script>
+			alert('密码不一致！添加失败！');
+			window.location.href='../admin_add.php';
+		</script>";
+		exit(0);
+	}
+	// 检查是否已经存在该管理员，如存在则不执行添加并退出该脚本
+	if (!idExists($yuangongbianhao)){
+		echo "<script>
+			alert('不存在该职员!');
+			window.location.href='../admin_add.php';
+		</script>";
+		exit(0);
+	}
+	$str = "select shenfen from yuangong where id = $yuangongbianhao";
+	$arr = mysql_query($str);
+	$result = mysql_fetch_array($arr);
+		if ($result['shenfen'] == "administrator"){
+		echo "<script>
+			alert('已存在该管理员!');
+			window.location.href='../admin_add.php';
+		</script>";
+		exit(0);
+		}
+	$str = "update yuangong set shenfen = 'administrator', password = '$password1' where id = $yuangongbianhao";
+	$update = mysql_query($str);
+	if ($update){
+		echo "<script>
+			alert('管理员添加成功');
+			window.location.href='../admin_manager.php';
+		</script>";
+	}
+	else {
+		echo "<script>
+			alert('管理员添加失败');
+			window.location.href='../admin_add.php';
+		</script>";
+	}
+}
+else {
+	echo "<script>
+		alert('职员编号和密码不能为空！');
+		window.location.href='../admin_add.php';
+	</script>";
+}
+
+?>
+<?php
+require_once("../../conn/Conn_DB.php");
+$str = "update yuangong set shenfen = '' where id = ".$_GET['id'];
+$delete = mysql_query($str);
+if ($delete){
+	echo "<script>
+		alert('已删除该管理员');
+		window.location.href='../admin_manager.php';
+	</script>";
+}
+else {
+	echo "<script>
+		alert('删除失败！');
+		window.location.href='../admin_manager.php';
+	</script>";
+}
+?>
+<?php
+
+require_once("../../conn/Conn_DB.php");
+if ($_POST['txt_hetongbianhao'] != "" && $_POST['txt_youxiaoqi'] != ""){
+	$hetongbianhao = $_POST['txt_hetongbianhao'];
+	$youxiaoqi = $_POST['txt_youxiaoqi'];
+	$str = "select * from hetong";
+	$arr = mysql_query($str);
+	// 检查是否已经存在该合同，如存在则不执行添加并退出该脚本
+	while ($result = mysql_fetch_array($arr)){
+		if ($result['bianhao'] == $hetongbianhao){
+		echo "<script>
+			alert('已存在该合同项目，请填写新的项目');
+			window.location.href='../hetong_add.php';
+		</script>";
+		exit();
+		}
+	}
+	$str = "insert into hetong (bianhao, youxiaoqi) 
+	values($hetongbianhao, $youxiaoqi)";
+	$insert = mysql_query($str);
+	if ($insert){
+		echo "<script>
+			alert('合同项目添加成功');
+			window.location.href='../hetong_manager.php';
+		</script>";
+	}
+	else {
+		echo "<script>
+			alert('合同项目添加失败');
+			window.location.href='../hetong_add.php';
+		</script>";
+	}
+}
+else {
+	echo "<script>
+		alert('合同项目编号和有效期不能为空！');
+		window.location.href='../hetong_add.php';
+	</script>";
+}
+
+?>
+<?php
+require_once("../../conn/Conn_DB.php");
+$str = "delete from hetong where id = ".$_GET['id'];
+$delete = mysql_query($str);
+if ($delete){
+	echo "<script>
+		alert('已删除');
+		window.location.href='../hetong_manager.php';
+	</script>";
+}
+else {
+	echo "<script>
+		alert('删除失败！');
+		window.location.href='../hetong_manager.php';
+	</script>";
+}
+?>
+<?php
+
+require_once("../../conn/Conn_DB.php");
+if ($_POST['txt_youxiaoqi'] != ""){
+	$youxiaoqi = $_POST['txt_youxiaoqi'];
+	$id = $_POST['txt_id'];
+	$str = "update hetong set youxiaoqi = $youxiaoqi where id = $id";
+	$update = mysql_query($str);
+	if ($update){
+		echo "<script>
+			alert('合同项目修改成功');
+			window.location.href='../hetong_manager.php';
+		</script>";
+	}
+	else {
+		echo "<script>
+			alert('合同项目修改失败');
+			window.location.href='../hetong_update.php';
+		</script>";
+	}
+}
+else {
+	echo "<script>
+		alert('有效期不能为空！');
+		window.location.href='../hetong_update.php';
+	</script>";
+}
+
+?>
+<?php
+
+require_once("../../conn/Conn_DB.php");
+if ($_POST['txt_gongzi'] != "" && $_POST['txt_butie'] != "" && $_POST['txt_gongling'] != ""){
+	$gongling = $_POST['txt_gongling'];
+	$gongzi = $_POST['txt_gongzi'];
+	$butie = $_POST['txt_butie'];
+	$str = "select * from jiben";
+	$arr = mysql_query($str);
+	// 检查是否已经存在该基本（工龄）工资补贴，如存在则不执行添加并退出该脚本
+	while ($result = mysql_fetch_array($arr)){
+		if ($result['gongling'] == $gongling){
+		echo "<script>
+			alert('已存在该工龄补贴，请填写新的工龄');
+			window.location.href='../jiben_add.php';
+		</script>";
+		exit();
+		}
+	}
+	$str = "insert into jiben (butie, gongling, gongzi) 
+	values($butie, $gongling, $gongzi)";
+	$insert = mysql_query($str);
+	if ($insert){
+		echo "<script>
+			alert('基本工资及工龄补贴添加成功');
+			window.location.href='../jiben_manager.php';
+		</script>";
+	}
+	else {
+		echo "<script>
+			alert('基本工资及工龄补贴添加失败');
+			window.location.href='../jiben_add.php';
+		</script>";
+	}
+}
+else {
+	echo "<script>
+		alert('基本工资，工龄和补贴不能为空！');
+		window.location.href='../jiben_add.php';
+	</script>";
+}
+
+?>
+<?php
+require_once("../../conn/Conn_DB.php");
+$str = "delete from jiben where id = ".$_GET['id'];
+$delete = mysql_query($str);
+if ($delete){
+	echo "<script>
+		alert('已删除');
+		window.location.href='../jiben_manager.php';
+	</script>";
+}
+else {
+	echo "<script>
+		alert('删除失败！');
+		window.location.href='../jiben_manager.php';
+	</script>";
+}
+?>
+<?php
+
+require_once("../../conn/Conn_DB.php");
+if ($_POST['txt_butie'] != "" && $_POST['txt_gongzi'] != ""){
+	$butie = $_POST['txt_butie'];
+	$id = $_POST['txt_id'];
+	$gongzi = $_POST['txt_gongzi'];
+	$str = "update jiben set butie = $butie, gongzi = $gongzi where id = $id";
+	$update = mysql_query($str);
+	if ($update){
+		echo "<script>
+			alert('基本工资及工龄补贴修改成功');
+			window.location.href='../jiben_manager.php';
+		</script>";
+	}
+	else {
+		echo "<script>
+			alert('基本工资及工龄补贴修改失败');
+			window.location.href='../jiben_manager.php';
+		</script>";
+	}
+}
+else {
+	echo "<script>
+		alert('基本工资和补贴不能为空！');
+		window.location.href='../jiben_update.php';
+	</script>";
+}
+
+?>
+<?php
+
+require_once("../../conn/Conn_DB.php");
+if ($_POST['txt_jibie'] != "" && $_POST['txt_gongzi'] != ""){
+	$jibie = $_POST['txt_jibie'];
+	if ($jibie < 1 || $jibie > 10){
+		echo "<script>
+			alert('请保证绩效级别在1-10之内！');
+			window.location.href='../jixiao_add.php';
+		</script>";
+		exit();
+	}
+	$gongzi = $_POST['txt_gongzi'];
+	$str = "select * from jixiao";
+	$arr = mysql_query($str);
+	// 检查是否已经存在该绩效级别，如存在则不执行添加并退出该脚本
+	while ($result = mysql_fetch_array($arr)){
+		if ($result['jibie'] == $jibie){
+		echo "<script>
+			alert('已存在该绩效级别，请填写新的级别');
+			window.location.href='../jixiao_add.php';
+		</script>";
+		exit();
+		}
+	}
+	$str = "insert into jixiao (jibie, gongzi) 
+	values($jibie, $gongzi)";
+	$insert = mysql_query($str);
+	if ($insert){
+		echo "<script>
+			alert('绩效级别添加成功');
+			window.location.href='../jixiao_manager.php';
+		</script>";
+	}
+	else {
+		echo "<script>
+			alert('绩效级别添加失败');
+			window.location.href='../jixiao_add.php';
+		</script>";
+	}
+}
+else {
+	echo "<script>
+		alert('绩效级别和工资不能为空！');
+		window.location.href='../jixiao_add.php';
+	</script>";
+}
+
+?>
+<?php
+require_once("../../conn/Conn_DB.php");
+$str = "delete from jixiao where id = ".$_GET['id'];
+$delete = mysql_query($str);
+if ($delete){
+	echo "<script>
+		alert('已删除');
+		window.location.href='../jixiao_manager.php';
+	</script>";
+}
+else {
+	echo "<script>
+		alert('删除失败！');
+		window.location.href='../jixiao_manager.php';
+	</script>";
+}
+?>
+<?php
+
+require_once("../../conn/Conn_DB.php");
+if ($_POST['txt_gongzi'] != ""){
+	$gongzi = $_POST['txt_gongzi'];
+	$id = $_POST['txt_id'];
+	$str = "update jixiao set gongzi = $gongzi where id = $id";
+	$update = mysql_query($str);
+	if ($update){
+		echo "<script>
+			alert('绩效修改成功');
+			window.location.href='../jixiao_manager.php';
+		</script>";
+	}
+	else {
+		echo "<script>
+			alert('绩效修改失败');
+			window.location.href='../jixiao_update.php';
+		</script>";
+	}
+}
+else {
+	echo "<script>
+		alert('工资不能为空！');
+		window.location.href='../jixiao_update.php';
+	</script>";
+}
+
+?>
+<?php
+
+require_once("../../conn/Conn_DB.php");
+if ($_POST['txt_zhuguan'] != "" && $_POST['txt_tongshi'] != "" && $_POST['txt_xiashu'] != "" && $_POST['txt_ziwo'] != "" && $_POST['txt_yuangongbianhao'] != ""){
+	$zhuguan = $_POST['txt_zhuguan'];
+	$tongshi = $_POST['txt_tongshi'];
+	$xiashu = $_POST['txt_xiashu'];
+	$ziwo = $_POST['txt_ziwo'];
+	$id = $_POST['txt_yuangongbianhao'];
+	$zongping = $zhuguan * 0.40 + $tongshi * 0.30 + $xiashu * 0.20 + $ziwo * 0.10;
+	$str = "update yuangong set zhuguan = $zhuguan, tongshi = $tongshi, xiashu = $xiashu, ziwo = $ziwo, zongping = $zongping where id = $id"; 
+	$update = mysql_query($str);
+	if ($update){
+		echo "<script>
+			alert('考核完毕');
+			window.location.href='../kaohe_manager.php';
+		</script>";
+	}
+	else {
+		echo "<script>
+			alert('考核失败');
+			window.location.href='../kaohe_add.php';
+		</script>";
+	}
+}
+else {
+	echo "<script>
+		alert('请确保所有数据均已填写！');
+		window.location.href='../kaohe_add.php';
+	</script>";
+}
+
+?>
+<?php
+
+require_once("../../conn/Conn_DB.php");
+if ($_POST['txt_hetongbianhao'] != "" && $_POST['txt_qianyueshijian'] != "" && $_POST['txt_ruzhishijian'] != "" && $_POST['txt_jixiao'] != ""){
+	$yuangongbianhao = $_POST['txt_yuangongbianhao'];
+	$jixiao = $_POST['txt_jixiao'];
+	$hetongbianhao = $_POST['txt_hetongbianhao'];
+	$ruzhishijian = $_POST['txt_ruzhishijian'];
+	$qianyueshijian = $_POST['txt_qianyueshijian'];
+	$gongling = Date('Y') - Date('Y', strtotime($ruzhishijian));
+	$str2 = "select max(gongling) as mg from jiben";
+	$arr2 = mysql_query($str2);
+	$result2 = mysql_fetch_array($arr2);
+	if ($gongling > $result2['mg']){
+		$jibengongzibianhao = -1;
+	}
+	else {
+		$str2 = "select id from jiben where gongling = ".$gongling;
+		$arr2 = mysql_query($str2);
+		$result2 = mysql_fetch_array($arr2);
+		$jibengongzibianhao = $result2['id'];
+	}
+	$str = "update yuangong set jibengongzibianhao=$jibengongzibianhao, ruzhishijian='$ruzhishijian', qianyueshijian='$qianyueshijian', hetongbianhao=$hetongbianhao, jixiaogongzibianhao=$jixiao where id = $yuangongbianhao";
+	$update = mysql_query($str);
+	if ($update){
+		echo "<script>
+			alert('劳动关系修改成功');
+			window.location.href='../laodong_manager.php';
+		</script>";
+	}
+	else {
+		echo "<script>
+			alert('劳动关系修改失败');
+			window.location.href='../laodong_update.php';
+		</script>";
+	}
+}
+else {
+	echo "<script>
+		alert('每项必填');
+		window.location.href='../laodong_update.php';
+	</script>";
+}
+
+?>
+<?php
+
+require_once("../../conn/Conn_DB.php");
+if ($_POST['txt_hetongbianhao'] != "" && $_POST['txt_qianyueshijian'] != "" && $_POST['txt_ruzhishijian'] != "" && $_POST['txt_jixiao'] != ""){
+	$yuangongbianhao = $_POST['txt_yuangongbianhao'];
+	$jixiao = $_POST['txt_jixiao'];
+	$hetongbianhao = $_POST['txt_hetongbianhao'];
+	$ruzhishijian = $_POST['txt_ruzhishijian'];
+	$qianyueshijian = $_POST['txt_qianyueshijian'];
+	$gongling = Date('Y') - Date('Y', strtotime($ruzhishijian));
+	$str2 = "select max(gongling) as mg from jiben";
+	$arr2 = mysql_query($str2);
+	$result2 = mysql_fetch_array($arr2);
+	if ($gongling > $result2['mg']){
+		$jibengongzibianhao = -1;
+	}
+	else {
+		$str2 = "select id from jiben where gongling = ".$gongling;
+		$arr2 = mysql_query($str2);
+		$result2 = mysql_fetch_array($arr2);
+		$jibengongzibianhao = $result2['id'];
+	}
+	$str = "update yuangong set jibengongzibianhao=$jibengongzibianhao, ruzhishijian='$ruzhishijian', qianyueshijian='$qianyueshijian', hetongbianhao='$hetongbianhao', jixiaogongzibianhao=$jixiao where id = $yuangongbianhao";
+	$update = mysql_query($str);
+	if ($update){
+		echo "<script>
+			alert('劳动关系修改成功');
+			window.location.href='../laodong_manager.php';
+		</script>";
+	}
+	else {
+		echo "<script>
+			alert('劳动关系修改失败');
+			window.location.href='../laodong_update.php';
+		</script>";
+	}
+}
+else {
+	echo "<script>
+		alert('每项必填');
+		window.location.href='../laodong_update.php';
+	</script>";
+}
+
+?>
+<?php
+    require_once("../../conn/Conn_DB.php");
+    if ($_POST["txt_username"]!="" && $_POST["txt_pwd"]!=""){
+        $id = $_POST["txt_username"];
+        $pwd = $_POST["txt_pwd"];
+        $identity = $_POST["identity"];
+        $str = "select * from yuangong where id= $id and password='$pwd' and shenfen='$identity'";
+        $result = mysql_query($str);        
+        if(mysql_num_rows($result)>0 && ($identity == "administrator")){
+            session_start();
+            $_SESSION['user1'] = $_POST['txt_username'];
+            echo "<script>window.location.href='../manager.php';</script>";
+            
+        }else if(mysql_num_rows($result)>0 && ($identity == "zhiyuan")){   
+            session_start();
+            $_SESSION['user2'] = $_POST['txt_username'];
+            echo "<script>window.location.href='../employee.php';</script>";
+            
+        }else{
+            echo "<script>alert('账号或密码错误！');window.location.href='../login.php'</script>";
+        }
+    }else{
+        echo "<script>alert('请输入账号和密码！');window.location.href='../login.php'</script>";
+    }
+?>
+<?php
+    require_once("../../conn/Conn_DB.php");
+    if ($_POST["txt_username"]!="" && $_POST["txt_pwd"]!=""){
+        $id = $_POST["txt_username"];
+        $pwd = $_POST["txt_pwd"];
+        $identity = $_POST["identity"];
+        $str = "select * from yuangong where id= $id and password='$pwd' and shenfen='$identity'";
+        $result = mysql_query($str);        
+        if(mysql_num_rows($result)>0 && ($identity == "administrator")){
+            session_start();
+            $_SESSION['user1'] = $_POST['txt_username'];
+            echo "<script>window.location.href='../manager.php';</script>";
+            
+        }else if(mysql_num_rows($result)>0 && ($identity == "zhiyuan")){   
+            session_start();
+            $_SESSION['user2'] = $_POST['txt_username'];
+            echo "<script>window.location.href='../employee.php';</script>";
+            
+        }else{
+            echo "<script>alert('用户名或密码错误！');window.location.href='../login.php'</script>";
+        }
+    }else{
+        echo "<script>alert('请输入用户名和密码！');window.location.href='../login.php'</script>";
+    }
+?>
+<?php
+session_start();
+if ($_SESSION['user1'] == "" && $_SESSION['user2'] == ""){
+	echo "<script>
+		alert('登录超时，请重新登录.');
+		window.location.href='login.php';
+	</script>";
+}
+
+?>
+<?php
+
+require_once("../../conn/Conn_DB.php");
+if ($_POST['txt_xueli'] != "" && $_POST['txt_butie'] != ""){
+	$xueli = $_POST['txt_xueli'];
+	$butie = $_POST['txt_butie'];
+	$str = "select * from xueli";
+	$arr = mysql_query($str);
+	// 检查是否已经存在该学历，如存在则不执行添加并退出该脚本
+	while ($result = mysql_fetch_array($arr)){
+		if ($result['xueli'] == $xueli){
+		echo "<script>
+			alert('已存在该学历补贴，请填写新的学历');
+			window.location.href='../xueli_add.php';
+		</script>";
+		exit();
+		}
+	}
+	$str = "insert into xueli (butie, xueli) 
+	values($butie, '$xueli')";
+	$insert = mysql_query($str);
+	if ($insert){
+		echo "<script>
+			alert('学历补贴添加成功');
+			window.location.href='../xueli_manager.php';
+		</script>";
+	}
+	else {
+		echo "<script>
+			alert('学历补贴添加失败');
+			window.location.href='../xueli_add.php';
+		</script>";
+	}
+}
+else {
+	echo "<script>
+		alert('学历和补贴不能为空！');
+		window.location.href='../xueli_add.php';
+	</script>";
+}
+
+?>
+<?php
+require_once("../../conn/Conn_DB.php");
+$str = "delete from xueli where id = ".$_GET['id'];
+$delete = mysql_query($str);
+if ($delete){
+	echo "<script>
+		alert('已删除');
+		window.location.href='../xueli_manager.php';
+	</script>";
+}
+else {
+	echo "<script>
+		alert('删除失败！');
+		window.location.href='../xueli_manager.php';
+	</script>";
+}
+?>
+<?php
+
+require_once("../../conn/Conn_DB.php");
+if ($_POST['txt_butie'] != ""){
+	$butie = $_POST['txt_butie'];
+	$id = $_POST['txt_id'];
+	$str = "update xueli set butie = $butie where id = $id";
+	$update = mysql_query($str);
+	if ($update){
+		echo "<script>
+			alert('学历补贴修改成功');
+			window.location.href='../xueli_manager.php';
+		</script>";
+	}
+	else {
+		echo "<script>
+			alert('学历补贴修改失败');
+			window.location.href='../xueli_update.php';
+		</script>";
+	}
+}
+else {
+	echo "<script>
+		alert('补贴不能为空！');
+		window.location.href='../xueli_update.php';
+	</script>";
+}
+
+?>
+<?php
+
+require_once("../../conn/Conn_DB.php");
+if ($_POST['txt_name'] != ""){
+	$name = $_POST['txt_name'];
+	$parentid = $_POST['txt_parentid'];
+	$renshu = $_POST['txt_renshu'];
+	$gongzi = $_POST['txt_gongzi'];
+	$quanzhong = $_POST['txt_quanzhong'];
+	$str = "insert into zhiwei(shangjiid, name, jihuarenshu, gongzi,jixiaoquanzhong, zhuangtai)
+	values($parentid, '$name', $renshu, $gongzi, $quanzhong, 0)";
+	$insert = mysql_query($str);
+	if ($insert){
+		echo "<script>
+			alert('职位类别添加成功');
+			window.location.href='../zhiweitype_manager.php';
+		</script>";
+	}
+	else {
+		echo "<script>
+			alert('职位类别添加失败');
+			window.location.href='../zhiweitype_add.php';
+		</script>";
+	}
+}
+else {
+	echo "<script>
+		alert('请输入职位名称！');
+		window.location.href='../zhiweitype_add.php';
+	</script>";
+}
+
+?><?php 
+	require_once("../../conn/Conn_DB.php");
+	if ($_GET['id'] != ""){
+		$id = $_GET['id'];
+		$str = "select * from zhiwei where shangjiid = ".$id;
+		$arr = mysql_query($str);
+		if (mysql_num_rows($arr) > 0){
+			echo "<script>
+				alert('该职位有下属职位，请先删除下属职位');
+				window.location.href='../zhiweitype_manager.php';
+			</script>";
+		}
+		else {
+			$str = "delete from zhiwei where id =".$id;
+			$delete = mysql_query($str);
+			if ($delete){
+				echo "<script>
+					alert('职位删除成功');
+					window.location.href='../zhiweitype_manager.php';
+				</script>";
+			}			
+			else {
+				echo "<script>
+					alert('职位删除失败');
+					window.location.href='../zhiweitype_manager.php';
+				</script>";
+			}
+		}
+	}
+	else {
+		echo "<script>
+			alert('请选择要删除的职位');
+			window.location.href='../zhiweitype_manager.php';
+		</script>";
+	}
+?>
+<?php 
+
+require_once("../../conn/Conn_DB.php");
+
+$id = $_POST['txt_id'];
+$renshu = $_POST['txt_renshu'];
+$gongzi = $_POST['txt_gongzi'];
+$quanzhong = $_POST['txt_quanzhong'];
+$str = "select xianyourenshu from zhiwei where id = ".$id;
+$arr = mysql_query($str);
+$result = mysql_fetch_array($arr);
+if ($result['xianyourenshu'] > $renshu){
+	echo "<script>
+		alert('职位计划人数不可小于现有人数！');
+		window.location.href='../zhiweitype_update.php';
+	</script>";
+	exit(0);
+}
+$str = "update zhiwei set jihuarenshu=$renshu, 
+	gongzi = $gongzi, jixiaoquanzhong = $quanzhong where id = ".$id;
+$update = mysql_query($str);
+if ($update){
+	echo "<script>
+		alert('职位类别修改成功！');
+		window.location.href='../zhiweitype_manager.php';
+	</script>";
+}
+else {
+	echo "<script>
+		alert('职位类别修改失败！');
+		window.location.href='../zhiweitype_manager.php';
+	</script>";
+}
+
+?>
+<?php
+
+require_once("../../conn/Conn_DB.php");
+if ($_POST['txt_xueli'] != "" && $_POST['txt_parentid'] != "" && $_POST['txt_name'] != "" && $_POST['txt_jixiao'] != "" && $_POST['txt_hetongbianhao'] != "" && $_POST['txt_qianyueshijian'] != "" && $_POST['txt_ruzhishijian'] != "" && $_POST['txt_zhiweizhuangtai'] != ""){
+	$xueli = $_POST['txt_xueli'];
+	$zhiweibianhao = $_POST['txt_parentid'];
+	$jixiao = $_POST['txt_jixiao'];
+	$name = $_POST['txt_name'];
+	$hetongbianhao = $_POST['txt_hetongbianhao'];
+	$ruzhishijian = $_POST['txt_ruzhishijian'];
+	$qianyueshijian = $_POST['txt_qianyueshijian'];
+	$gender = $_POST['txt_gender'];
+	$minzu = $_POST['txt_minzu'];
+	$birthdate = $_POST['txt_birthdate'];
+	$mianmao = $_POST['txt_mianmao'];
+	$jiguan = $_POST['txt_jiguan'];
+	$idcard = $_POST['txt_idcard'];
+	$youxiang = $_POST['txt_youxiang'];
+	$youbian = $_POST['txt_youbian'];
+	$lianxidizhi = $_POST['txt_dizhi'];
+	$biyexuexiao = $_POST['txt_xuexiao'];
+	$zhuanye = $_POST['txt_zhuanye'];
+	$lianxidianhua = $_POST['txt_dianhua'];
+	$zhiweizhuangtai = $_POST['txt_zhiweizhuangtai'];
+	$gongling = Date('Y') - Date('Y', strtotime($ruzhishijian));
+	$password = substr($idcard, strlen($idcard)-6, strlen($idcard));
+	$shenfen = "zhiyuan";
+	$str2 = "select max(gongling) as mg from jiben";
+	$arr2 = mysql_query($str2);
+	$result2 = mysql_fetch_array($arr2);
+	if ($gongling > $result2['mg']){
+		$jibengongzibianhao = -1;
+	}
+	else {
+		$str2 = "select id from jiben where gongling = ".$gongling;
+		$arr2 = mysql_query($str2);
+		$result2 = mysql_fetch_array($arr2);
+		$jibengongzibianhao = $result2['id'];
+	}
+	$str = "insert into yuangong(zhiweibianhao, zhiweizhuangtai, xingming, gender, birthdate, xuelibianhao, jibengongzibianhao, jixiaogongzibianhao, minzu, idcard, zhengzhimianmao, jiguan, lianxidizhi, youbian, youxiang, ruzhishijian, qianyueshijian, hetongbianhao, biyexuexiao, zhuanye, lianxidianhua, password, shenfen)
+		values($zhiweibianhao, $zhiweizhuangtai, '$name', '$gender', '$birthdate', $xueli, $jibengongzibianhao , $jixiao, '$minzu', '$idcard', '$mianmao', '$jiguan', '$lianxidizhi', '$youbian', '$youxiang', '$ruzhishijian', '$qianyueshijian', $hetongbianhao, '$biyexuexiao', '$zhuanye', '$lianxidianhua', '$password', '$shenfen')";
+	$insert = mysql_query($str);
+	if ($insert){
+		echo "<script>
+			alert('职员信息添加成功');
+			window.location.href='../zhiyuan_manager.php';
+		</script>";
+	}
+	else {
+		echo mysql_error($str);
+		echo "<script>
+			alert('职员信息添加失败');
+			window.location.href='../zhiyuan_add.php';
+		</script>";
+	}
+}
+else {
+	echo "<script>
+		alert('*号项不能为空！');
+		window.location.href='../zhiyuan_add.php';
+	</script>";
+}
+
+?>
+<?php
+
+require_once("../../conn/Conn_DB.php");
+if ($_POST['txt_parentid'] != ""){
+	$zhiweibianhao = $_POST['txt_parentid'];
+	$id = $_POST['txt_id'];
+	$str = "update yuangong set zhiweibianhao = $zhiweibianhao where id = $id";
+	$update = mysql_query($str);
+	if ($update){
+		echo "<script>
+			alert('职位变动成功');
+			window.location.href='../zhiyuan_manager.php';
+		</script>";
+	}
+	else {
+		echo "<script>
+			alert('职位变动失败');
+			window.location.href='../zhiyuan_biandong.php';
+		</script>";
+	}
+}
+else {
+	echo "<script>
+		alert('目标职位不能为空！');
+		window.location.href='../zhiyuan_biandong.php';
+	</script>";
+}
+
+?>
+<?php
+include '../../conn/Conn_DB.php';
+$str = "delete from yuangong where id = ".$_GET['id'];
+$delete = mysql_query($str);
+if ($delete){
+	echo "<script>
+		alert('已解雇该职员！');
+		window.location.href='../../admin/zhiyuan_manager.php';
+	</script>";
+}
+else {
+	echo "<script>
+		alert('解雇失败！');
+		window.location.href='../../admin/zhiyuan_manager.php';
+	</script>";
+}
+?>
+<?php
+
+require_once("../../conn/Conn_DB.php");
+if ($_POST['txt_name'] != ""){
+	$id = $_POST['id'];
+	$name = $_POST['txt_name'];
+	$gender = $_POST['txt_gender'];
+	$minzu = $_POST['txt_minzu'];
+	$birthdate = $_POST['txt_birthdate'];
+	$mianmao = $_POST['txt_mianmao'];
+	$jiguan = $_POST['txt_jiguan'];
+	$idcard = $_POST['txt_idcard'];
+	$youxiang = $_POST['txt_youxiang'];
+	$youbian = $_POST['txt_youbian'];
+	$lianxidizhi = $_POST['txt_dizhi'];
+	$biyexuexiao = $_POST['txt_xuexiao'];
+	$zhuanye = $_POST['txt_zhuanye'];
+	$lianxidianhua = $_POST['txt_dianhua'];
+	$str = "update yuangong set xingming = '$name', gender='$gender', minzu='$minzu', birthdate='$birthdate', zhengzhimianmao='$mianmao', jiguan='$jiguan', idcard='$idcard', youxiang='$youxiang', youbian='$youbian', lianxidizhi='$lianxidizhi', biyexuexiao='$biyexuexiao', zhuanye='$zhuanye', lianxidianhua='$lianxidianhua' where id = $id";
+	$update = mysql_query($str);
+	if ($update){
+		echo "<script>
+			alert('职员信息修改成功');
+			window.location.href='../zhiyuan_manager.php';
+		</script>";
+	}
+	else {
+		echo "<script>
+			alert('职员信息修改失败');
+			window.location.href='../zhiyuan_update.php';
+		</script>";
+	}
+}
+else {
+	echo "<script>
+		alert('姓名不能为空！');
+		window.location.href='../zhiyuan_update.php';
+	</script>";
+}
+
+?>
+<?php
+require_once('../../conn/Conn_DB.php');
+$str = "update yuangong set zhiweizhuangtai = 1 where id = ".$_GET['id'];
+$update = mysql_query($str);
+if ($update){
+	echo "<script>
+		alert('转正成功');
+		window.location.href='../zhiyuan_manager.php';
+	</script>";
+}
+else {
+	echo "<script>
+		alert('转正失败');
+		window.location.href='../zhiyuan_manager.php';
+	</script>";
+}
+?>

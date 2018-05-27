@@ -1,0 +1,50 @@
+ Volume in drive C is Windows
+ Volume Serial Number is 4646-900F
+
+ Directory of c:\xampp\htdocs\PHP\HRM\admin
+
+2018/01/25  13:29    <DIR>          .
+2018/01/25  13:29    <DIR>          ..
+2018/01/25  13:28    <DIR>          action
+2018/01/03  20:39             1,249 adminpwd_update.php
+2018/01/03  15:53             1,153 admin_add.php
+2018/01/03  15:56             1,264 admin_manager.php
+2018/01/23  12:55               309 cover.html
+2018/01/23  12:56               989 employee.php
+2018/01/03  10:45               596 fenye.php
+2018/01/03  20:34               800 hetong_add.php
+2018/01/03  15:55             1,195 hetong_manager.php
+2018/01/03  20:40             1,305 hetong_update.php
+2018/01/03  20:35               917 jiben_add.php
+2018/01/03  15:55             1,329 jiben_manager.php
+2018/01/03  20:41             1,460 jiben_update.php
+2018/01/03  16:01               808 jixiao_add.php
+2018/01/03  15:56             1,178 jixiao_manager.php
+2018/01/03  20:41             1,306 jixiao_update.php
+2018/01/03  20:36             1,348 kaohe_add.php
+2018/01/03  15:55             1,320 kaohe_manager.php
+2018/01/17  09:38             2,075 laodong_manager.php
+2018/01/17  09:42             2,342 laodong_update.php
+2018/01/23  12:25             3,388 login.php
+2018/01/03  20:58             2,348 manager.php
+2018/01/25  13:26            88,036 out.txt
+2017/12/28  17:02               584 select_zhiweitype1.php
+2017/12/28  17:02               654 select_zhiweitype2.php
+2017/12/30  18:17               631 select_zhiweitype3.php
+2018/01/03  20:55             2,624 selfInfo.php
+2018/01/03  20:56             1,273 selfPerformance.php
+2018/01/03  20:56             2,366 selfSalary.php
+2018/01/25  13:29                 0 wenjian.txt
+2018/01/03  20:37               773 xueli_add.php
+2018/01/03  15:55             1,159 xueli_manager.php
+2018/01/03  20:42             1,276 xueli_update.php
+2018/01/03  15:49             1,514 zhiweitype_add.php
+2018/01/03  15:56             2,047 zhiweitype_manager.php
+2018/01/03  21:49             1,874 zhiweitype_update.php
+2018/01/03  15:48             3,670 zhiyuan_add.php
+2018/01/03  20:48             1,562 zhiyuan_biandong.php
+2018/01/03  20:49             4,072 zhiyuan_info.php
+2018/01/03  15:56             1,910 zhiyuan_manager.php
+2018/01/04  15:10             4,558 zhiyuan_update.php
+              40 File(s)        149,262 bytes
+               3 Dir(s)  143,755,091,968 bytes free
