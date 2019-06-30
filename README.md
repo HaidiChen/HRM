@@ -1,3 +1,6 @@
-# HumanResourceManagement
-Web-based software for human resource management
+# Human Resource Management
+Web Application for human resource management
+
 database: mysql
+
+main language: PHP
